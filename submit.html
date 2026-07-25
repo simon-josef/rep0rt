@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rep0rt — submit a null result</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root {
+    --paper:#FBFAF7; --surface:#FFFFFF; --ink:#1B1A17; --muted:#6E6C64; --hint:#9A988F;
+    --line:rgba(27,26,23,0.12); --line-strong:rgba(27,26,23,0.24);
+    --accent:#1F5FA6; --accent-ink:#16467C; --accent-bg:#E9F1FA;
+    --warn:#B26B00; --danger:#B42318;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#1A1A18; --surface:#232320; --ink:#ECEAE3; --muted:#A6A49B; --hint:#76746C;
+      --line:rgba(236,234,227,0.14); --line-strong:rgba(236,234,227,0.28);
+      --accent:#6FA8E0; --accent-ink:#BCD7F2; --accent-bg:#233649;
+      --warn:#E5A94D; --danger:#E88A82;
+    }
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Inter", system-ui, -apple-system, sans-serif;
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:720px; margin:0 auto; padding:3rem 1.25rem 4rem; }
+  .mark { font-family:"EB Garamond", Georgia, serif; font-style:italic; font-weight:500; font-size:37px; letter-spacing:0; }
+  .mark .z { color:var(--accent); }
+  .meta { font-size:13px; color:var(--hint); margin-top:4px; letter-spacing:0.02em; }
+  .lede { font-size:15px; color:var(--muted); margin:0.5rem 0 2.25rem; }
+  .lede em { font-family:"EB Garamond", serif; font-style:italic; color:var(--ink); }
+  .card { background:var(--surface); border:0.5px solid var(--line); border-radius:14px; padding:1.75rem; }
+  .field { margin-bottom:1.5rem; }
+  .field:last-of-type { margin-bottom:0; }
+  .lab { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:7px; }
+  .lab .name { font-size:14px; font-weight:500; }
+  .lab .note { font-size:12px; color:var(--hint); }
+  .tex { font-family:"JetBrains Mono", monospace; font-size:10px; letter-spacing:0.04em; color:var(--accent-ink); background:var(--accent-bg); padding:2px 7px; border-radius:6px; text-transform:uppercase; }
+  textarea, input[type=text] {
+    width:100%; background:var(--paper); color:var(--ink);
+    border:0.5px solid var(--line-strong); border-radius:var(--radius);
+    padding:0.6rem 0.75rem; font-size:14px; outline:none; transition:border-color .12s, box-shadow .12s;
+  }
+  textarea { font-family:"JetBrains Mono", monospace; line-height:1.65; resize:vertical; min-height:84px; }
+  input[type=text] { font-family:inherit; height:40px; }
+  textarea:focus, input[type=text]:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
+  select { width:100%; background:var(--paper); color:var(--ink); border:0.5px solid var(--line-strong); border-radius:var(--radius); padding:0.6rem 0.75rem; font:inherit; font-size:14px; height:40px; outline:none; cursor:pointer; transition:border-color .12s, box-shadow .12s; }
+  select:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
+  .disc { display:flex; align-items:center; gap:8px; }
+  .disc .pfx { font-family:"JetBrains Mono", monospace; font-size:14px; color:var(--accent-ink); white-space:nowrap; }
+  .card input.title-in { font-family:"JetBrains Mono", monospace; font-size:14px; }
+  .cnt { font-size:12px; color:var(--hint); text-align:right; margin-top:5px; font-variant-numeric:tabular-nums; }
+  .cnt.warn { color:var(--warn); }
+  .row { display:flex; gap:8px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .chip { display:inline-flex; align-items:center; gap:7px; background:var(--accent-bg); color:var(--accent-ink); font-size:13px; padding:5px 11px; border-radius:8px; }
+  .chip button { all:unset; cursor:pointer; line-height:1; font-size:15px; opacity:.7; }
+  .chip button:hover { opacity:1; }
+  button.btn {
+    font:inherit; font-size:14px; cursor:pointer; background:transparent; color:var(--ink);
+    border:0.5px solid var(--line-strong); border-radius:var(--radius); padding:0.55rem 1rem; transition:background .12s, transform .06s;
+  }
+  button.btn:hover { background:var(--paper); }
+  button.btn:active { transform:scale(0.98); }
+  button.primary { border-color:var(--accent); color:var(--accent-ink); background:var(--accent-bg); }
+  .slots { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .slot {
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center;
+    border:0.5px dashed var(--line-strong); border-radius:var(--radius); padding:1rem 0.6rem; min-height:84px;
+    cursor:pointer; color:var(--muted); font-size:12px; transition:border-color .12s, color .12s;
+  }
+  .slot:hover { border-color:var(--accent); color:var(--accent-ink); }
+  .slot.filled { border-style:solid; border-color:var(--accent); color:var(--accent-ink); }
+  .slot .svg { width:22px; height:22px; }
+  .slot.wide { min-height:64px; }
+  .actions { display:flex; gap:10px; justify-content:flex-end; align-items:center; margin-top:1.75rem; padding-top:1.5rem; border-top:0.5px solid var(--line); }
+  .status { font-size:13px; color:var(--muted); margin-right:auto; }
+  .status.ok { color:var(--accent-ink); }
+  .status.err { color:var(--danger); }
+  .foot { font-size:12px; color:var(--hint); text-align:center; margin-top:1.75rem; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  @media (max-width:560px) { .wrap { padding-top:2rem; } .card { padding:1.25rem; } }
+  .prev-toggle { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:0.5px solid var(--line); }
+  .prev-toggle label { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer; }
+  .prev-toggle input { accent-color:var(--accent); width:15px; height:15px; cursor:pointer; }
+  .prev-toggle .prev-hint { font-size:12px; color:var(--hint); }
+  .tex-prev { margin-top:8px; padding:0.65rem 0.8rem; border:0.5px solid var(--line); border-left:2px solid var(--accent); border-radius:var(--radius); background:var(--paper); font-size:14px; line-height:1.65; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:anywhere; color:var(--ink); }
+  .tex-prev[hidden] { display:none; }
+  .tex-prev.empty::before { content:"Preview appears here as you type"; color:var(--hint); font-style:italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="mark" href="index.html" style="color:inherit;text-decoration:none;">Rep<span class="z">0</span>rt</a>
+    <div class="meta">share what would otherwise be lost</div>
+    <p class="lede">Write up a result. Every text field accepts <em>LaTeX</em>.</p>
+  </header>
+
+  <form class="card" id="report" novalidate>
+
+    <div class="prev-toggle">
+      <label><input type="checkbox" id="prevtog" /> Live LaTeX preview</label>
+      <span class="prev-hint">renders math as you type</span>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Title</span><span class="tex">LaTeX</span></div>
+      <input type="text" id="title" class="title-in" maxlength="250" placeholder="A concise title for your null result." />
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Discipline</span></div>
+      <div class="disc">
+        <span class="pfx">Rep0rt.</span>
+        <select id="discipline" aria-label="Discipline">
+          <option value="" disabled selected>choose a field</option>
+          <option value="psy">psy — Psychology</option>
+          <option value="cogsci">cogsci — Cognitive Science</option>
+          <option value="neuro">neuro — Neuroscience</option>
+          <option value="physics">physics — Physics</option>
+          <option value="chem">chem — Chemistry</option>
+          <option value="bio">bio — Biology</option>
+          <option value="med">med — Medicine</option>
+          <option value="cs">cs — Computer Science</option>
+          <option value="stat">stat — Statistics</option>
+          <option value="math">math — Mathematics</option>
+          <option value="econ">econ — Economics</option>
+          <option value="soc">soc — Sociology</option>
+          <option value="ling">ling — Linguistics</option>
+          <option value="hist">hist — History</option>
+          <option value="polisci">polisci — Political Science</option>
+          <option value="phil">phil — Philosophy</option>
+          <option value="anthro">anthro — Anthropology</option>
+          <option value="edu">edu — Education</option>
+          <option value="env">env — Environmental Science</option>
+          <option value="eng">eng — Engineering</option>
+          <option value="other">other — Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Abstract</span><span class="tex">LaTeX</span></div>
+      <textarea data-name="abstract" maxlength="1200" data-limit="1200" placeholder="A short summary of what you tested and what you found."></textarea>
+      <div class="cnt">0 / 1200</div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Tags</span><span class="note">choose 4 keywords</span></div>
+      <div class="row">
+        <input type="text" id="tagin" placeholder="Type a keyword and press enter" autocomplete="off" />
+        <button type="button" class="btn" id="tagadd">Add</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Theory and expectations</span><span class="tex">LaTeX</span></div>
+      <textarea style="min-height:120px" maxlength="1800" data-limit="1800" placeholder="The reasoning, and what you expected to happen."></textarea>
+      <div class="cnt">0 / 1800</div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Hypothesis</span><span class="tex">LaTeX</span></div>
+      <textarea data-name="hypothesis" style="min-height:48px" maxlength="200" data-limit="200" placeholder="The single claim you tested."></textarea>
+      <div class="cnt">0 / 200</div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Results</span><span class="tex">LaTeX</span></div>
+      <textarea data-name="results" maxlength="1000" data-limit="1000" placeholder="What actually happened, including the null finding."></textarea>
+      <div class="cnt">0 / 1000</div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Reflections</span><span class="tex">LaTeX</span></div>
+      <textarea maxlength="1000" data-limit="1000" placeholder="Why it may have failed, caveats, what a next attempt should avoid."></textarea>
+      <div class="cnt">0 / 1000</div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Literature</span><span class="tex">LaTeX</span></div>
+      <textarea maxlength="1000" data-limit="1000" placeholder="Key references and related work. BibTeX or plain citations."></textarea>
+      <div class="cnt">0 / 1000</div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Figures &amp; Visualizations</span><span class="note">up to 3</span></div>
+      <div class="slots" id="pics"></div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="name">Data and code</span><span class="note">optional</span></div>
+      <div class="slot wide" data-file id="dataslot">
+        <svg class="svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+        <span class="txt">Upload dataset or code if available</span>
+      </div>
+      <input type="file" id="datainput" hidden />
+    </div>
+
+    <div class="actions">
+      <span class="status" id="status"></span>
+      <button type="button" class="btn">Save draft</button>
+      <button type="button" class="btn primary" id="publish">Publish report</button>
+    </div>
+
+  </form>
+
+  <p class="foot">Every result has the bones of a paper, even the ones that never get published.</p>
+
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll('textarea[data-limit]').forEach(function (ta) {
+    var lim = +ta.dataset.limit, cnt = ta.parentNode.querySelector('.cnt');
+    ta.addEventListener('input', function () {
+      var n = ta.value.length;
+      cnt.textContent = n + ' / ' + lim;
+      cnt.classList.toggle('warn', n >= lim * 0.9);
+    });
+  });
+
+  var tags = [], inp = document.getElementById('tagin'), addBtn = document.getElementById('tagadd'), chips = document.getElementById('chips');
+  function renderTags() {
+    chips.innerHTML = '';
+    tags.forEach(function (t, i) {
+      var el = document.createElement('span');
+      el.className = 'chip';
+      el.innerHTML = '<span></span><button type="button" aria-label="Remove tag">&times;</button>';
+      el.firstChild.textContent = t;
+      el.querySelector('button').addEventListener('click', function () { tags.splice(i, 1); renderTags(); });
+      chips.appendChild(el);
+    });
+    var full = tags.length >= 4;
+    inp.disabled = full; addBtn.disabled = full;
+    inp.placeholder = full ? '4 keywords selected' : 'Type a keyword and press enter';
+  }
+  function addTag() {
+    var v = inp.value.trim();
+    if (v && tags.length < 4 && tags.indexOf(v) === -1) { tags.push(v); inp.value = ''; renderTags(); }
+  }
+  addBtn.addEventListener('click', addTag);
+  inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addTag(); } });
+
+  var picIcon = '<svg class="svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></svg>';
+  var checkIcon = '<svg class="svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>';
+  var pics = document.getElementById('pics');
+  for (var k = 0; k < 3; k++) {
+    var slot = document.createElement('div');
+    slot.className = 'slot'; slot.setAttribute('data-file', '');
+    slot.innerHTML = picIcon + '<span class="txt">Add image</span>';
+    var input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*'; input.hidden = true;
+    (function (slot, input) {
+      slot.addEventListener('click', function () { input.click(); });
+      input.addEventListener('change', function () {
+        if (input.files.length) {
+          slot.classList.add('filled');
+          slot.innerHTML = checkIcon + '<span class="txt"></span>';
+          slot.querySelector('.txt').textContent = input.files[0].name;
+        }
+      });
+    })(slot, input);
+    pics.appendChild(slot); pics.appendChild(input);
+  }
+
+  var dataSlot = document.getElementById('dataslot'), dataInput = document.getElementById('datainput');
+  dataSlot.addEventListener('click', function () { dataInput.click(); });
+  dataInput.addEventListener('change', function () {
+    if (dataInput.files.length) {
+      dataSlot.classList.add('filled');
+      dataSlot.querySelector('.txt').textContent = dataInput.files[0].name;
+    }
+  });
+
+  var status = document.getElementById('status');
+  document.getElementById('publish').addEventListener('click', function () {
+    var get = function (n) { var el = document.querySelector('[data-name="' + n + '"]'); return el ? el.value.trim() : ''; };
+    var title = (document.getElementById('title').value || '').trim();
+    var discipline = document.getElementById('discipline').value;
+    var abstract = get('abstract'), hypothesis = get('hypothesis'), results = get('results');
+    var missing = [];
+    if (!title) missing.push('a title');
+    if (!discipline) missing.push('a discipline');
+    if (!abstract) missing.push('an abstract');
+    if (!hypothesis) missing.push('a hypothesis');
+    if (!results) missing.push('results');
+    if (missing.length) {
+      status.className = 'status err';
+      status.textContent = 'Add ' + missing.join(', ') + ' before publishing.';
+    } else {
+      status.className = 'status ok';
+      status.textContent = 'Ready to publish. (Demo: no backend connected yet.)';
+    }
+  });
+
+  // --- LaTeX live preview ---
+  var katexOpts = { delimiters: [
+    { left: '$$', right: '$$', display: true },
+    { left: '\\[', right: '\\]', display: true },
+    { left: '$', right: '$', display: false },
+    { left: '\\(', right: '\\)', display: false }
+  ], throwOnError: false };
+  var prevFields = [];
+  document.querySelectorAll('#report .field').forEach(function (field) {
+    if (!field.querySelector('.tex')) return; // only LaTeX-badged fields
+    var input = field.querySelector('textarea, input[type=text]');
+    if (!input) return;
+    var prev = document.createElement('div');
+    prev.className = 'tex-prev';
+    prev.hidden = true;
+    field.appendChild(prev);
+    function render() {
+      prev.textContent = input.value;
+      prev.classList.toggle('empty', !input.value.trim());
+      if (window.renderMathInElement) { try { renderMathInElement(prev, katexOpts); } catch (e) {} }
+    }
+    input.addEventListener('input', function () { if (!prev.hidden) render(); });
+    prevFields.push({ prev: prev, render: render });
+  });
+  var prevTog = document.getElementById('prevtog');
+  prevTog.addEventListener('change', function () {
+    prevFields.forEach(function (f) {
+      f.prev.hidden = !prevTog.checked;
+      if (prevTog.checked) f.render();
+    });
+  });
+})();
+</script>
+</body>
+</html>

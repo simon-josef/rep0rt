@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rep0rt — share what would otherwise be lost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:#FBFAF7; --surface:#FFFFFF; --ink:#1B1A17; --muted:#6E6C64; --hint:#9A988F;
+    --line:rgba(27,26,23,0.12); --line-strong:rgba(27,26,23,0.24);
+    --accent:#1F5FA6; --accent-ink:#16467C; --accent-bg:#E9F1FA;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#1A1A18; --surface:#232320; --ink:#ECEAE3; --muted:#A6A49B; --hint:#76746C;
+      --line:rgba(236,234,227,0.14); --line-strong:rgba(236,234,227,0.28);
+      --accent:#6FA8E0; --accent-ink:#BCD7F2; --accent-bg:#233649;
+    }
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Inter", system-ui, -apple-system, sans-serif;
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:680px; margin:0 auto; padding:3rem 1.25rem 4rem; }
+  header { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .mark { font-family:"EB Garamond", Georgia, serif; font-style:italic; font-weight:500; font-size:37px; letter-spacing:0; color:var(--ink); text-decoration:none; }
+  .mark .z { color:var(--accent); }
+  .meta { font-size:13px; color:var(--hint); letter-spacing:0.02em; }
+
+  .hero { margin-top:3rem; }
+  .hero h1 { font-family:"EB Garamond", Georgia, serif; font-weight:500; font-size:34px; line-height:1.25; letter-spacing:-0.01em; margin:0 0 1.25rem; }
+  .hook { font-size:16px; color:var(--muted); margin:0 0 1rem; }
+  .hook .strong { color:var(--ink); }
+  .solution { font-size:16px; color:var(--ink); margin:0 0 2rem; }
+  .solution b { font-weight:600; }
+  .cta {
+    display:inline-block; font-size:15px; font-weight:500; text-decoration:none;
+    color:#fff; background:var(--accent); border-radius:var(--radius); padding:0.7rem 1.4rem;
+    transition:transform .06s, opacity .12s;
+  }
+  @media (prefers-color-scheme: dark) { .cta { color:#12100c; } }
+  .cta:hover { opacity:0.92; }
+  .cta:active { transform:scale(0.98); }
+
+  .steps { margin-top:3.5rem; display:grid; gap:1.5rem; }
+  @media (min-width:620px) { .steps { grid-template-columns:repeat(3,1fr); gap:1.75rem; } }
+  .step .n { font-family:"JetBrains Mono", monospace; font-size:12px; color:var(--accent-ink); background:var(--accent-bg); width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; margin-bottom:0.6rem; }
+  .step h3 { font-size:15px; font-weight:600; margin:0 0 0.35rem; }
+  .step p { font-size:14px; color:var(--muted); margin:0; }
+
+  .foot { font-family:"EB Garamond", serif; font-style:italic; font-size:16px; color:var(--muted); text-align:center; margin-top:4rem; padding-top:2rem; border-top:0.5px solid var(--line); }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  @media (max-width:560px) { .wrap { padding-top:2rem; } .hero h1 { font-size:28px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="mark">Rep<span class="z">0</span>rt</span>
+    <span class="meta">share what would otherwise be lost</span>
+  </header>
+
+  <section class="hero">
+    <h1>The results science throws away.</h1>
+    <p class="hook">You spent months on a result that didn't confirm the hypothesis. <span class="strong">It won't get published. It won't count.</span> And somewhere, another researcher is about to spend their months on the exact same dead end.</p>
+    <p class="solution">Rep0rt gives those results a home: an <b>open, free, and citable</b> record of what didn't work, so the field stops repeating it.</p>
+    <a class="cta" href="submit.html">Publish a result</a>
+  </section>
+
+  <section class="steps">
+    <div class="step">
+      <div class="n">1</div>
+      <h3>Write it up</h3>
+      <p>Fill a short, structured template. Title, hypothesis, results, reflections. Math in LaTeX.</p>
+    </div>
+    <div class="step">
+      <div class="n">2</div>
+      <h3>It joins the record</h3>
+      <p>Your report enters an open, searchable database with a permanent, citable identifier.</p>
+    </div>
+    <div class="step">
+      <div class="n">3</div>
+      <h3>Others build on it</h3>
+      <p>Researchers find it, cite it, and skip the dead end you already mapped out.</p>
+    </div>
+  </section>
+
+  <p class="foot">Every result has the bones of a paper, even the ones that never get published.</p>
+
+</div>
+</body>
+</html>
