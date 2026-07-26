@@ -26,6 +26,7 @@ REPORTS = [
         date="2026-03-14",
         tags=["growth mindset", "education", "replication", "null result"],
         data_available=True,
+        stats=dict(views=1850, comments=14),
         abstract="A single-session growth-mindset intervention was delivered to 214 students "
                  "in an introductory statistics course before their first exam. Relative to a "
                  "study-skills control video of matched length, the intervention produced no "
@@ -78,6 +79,7 @@ REPORTS = [
         date="2026-01-22",
         tags=["working memory", "sentence processing", "eye-tracking", "individual differences"],
         data_available=True,
+        stats=dict(views=640, comments=5),
         abstract="Using eye-tracking during reading, we measured reanalysis time on garden-path "
                  "sentences (e.g. \"The horse raced past the barn fell\") in 88 adults whose "
                  "working-memory span had been independently assessed. Span scores did not "
@@ -124,6 +126,7 @@ REPORTS = [
         ],
         date="2025-11-08",
         tags=["tDCS", "prefrontal cortex", "risk-taking", "non-invasive stimulation"],
+        stats=dict(views=2100, comments=22),
         data_available=False,
         abstract="Sixty participants completed the Balloon Analogue Risk Task (BART) during "
                  "anodal, cathodal, or sham transcranial direct current stimulation (tDCS) "
@@ -172,6 +175,7 @@ REPORTS = [
         ],
         date="2025-09-30",
         tags=["optics", "colloids", "Beer-Lambert law", "scattering"],
+        stats=dict(views=480, comments=3),
         data_available=True,
         abstract="We measured optical extinction of polystyrene microsphere suspensions "
                  "(220 nm diameter) across concentrations from 0.1% to 5% v/v, testing whether "
@@ -213,6 +217,7 @@ REPORTS = [
         ],
         date="2025-08-17",
         tags=["click chemistry", "catalysis", "kinetics", "low temperature"],
+        stats=dict(views=310, comments=2),
         data_available=False,
         abstract="We measured the rate of azide-alkyne cycloaddition with and without a "
                  "Cu(I) catalyst at temperatures from -20°C to 0°C, where catalyst "
@@ -261,6 +266,7 @@ REPORTS = [
         ],
         date="2025-06-02",
         tags=["resveratrol", "lifespan", "Drosophila", "aging"],
+        stats=dict(views=1200, comments=9),
         data_available=True,
         abstract="Outbred Drosophila melanogaster (n=480, both sexes) were reared on standard "
                  "medium supplemented with resveratrol at 0, 100, or 400 μM. Median "
@@ -305,6 +311,7 @@ REPORTS = [
         ],
         date="2026-02-10",
         tags=["transformers", "regularization", "overfitting", "NLP"],
+        stats=dict(views=2600, comments=31),
         data_available=True,
         abstract="We fine-tuned a 125M-parameter transformer on a 4k-example classification "
                  "set under five attention-dropout rates $p_{drop} \\in \\{0, 0.1, 0.2, 0.3, "
@@ -348,6 +355,7 @@ REPORTS = [
         ],
         date="2025-12-05",
         tags=["bootstrap", "coverage", "count data", "simulation"],
+        stats=dict(views=900, comments=7),
         data_available=True,
         abstract="In a simulation study with 10,000 replicates, we compared empirical coverage "
                  "of percentile-bootstrap and asymptotic-normal confidence intervals for the "
@@ -390,6 +398,7 @@ REPORTS = [
         ],
         date="2025-10-19",
         tags=["minimum wage", "labor economics", "difference-in-differences", "employment"],
+        stats=dict(views=1500, comments=18),
         data_available=False,
         abstract="Using a difference-in-differences design across 46 mid-size US counties that "
                  "raised local minimum wages between 2015 and 2023, matched to demographically "
@@ -430,6 +439,7 @@ REPORTS = [
         ],
         date="2025-07-25",
         tags=["bilingualism", "code-switching", "naming latency", "language acquisition"],
+        stats=dict(views=520, comments=4),
         data_available=False,
         abstract="We compared picture-naming latency in 30-month-old bilingual toddlers during "
                  "blocked single-language naming versus trials that required switching "
@@ -493,6 +503,7 @@ def main():
             "date": r["date"],
             "tags": r["tags"],
             "dataAvailable": r["data_available"],
+            "stats": r["stats"],
             "bodyEncoded": encode_body(r),
         }
         entries.append(entry)

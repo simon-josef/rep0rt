@@ -9,29 +9,72 @@
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/rep0rt.css" />
 <style>
+  .wrap { max-width:1080px; }
+
+  header.site { justify-content:space-between; }
+  .brand-group { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+
+  .profile-wrap { position:relative; flex:none; }
+  .profile-btn {
+    width:36px; height:36px; border-radius:50%; border:0.5px solid var(--line-strong);
+    background:var(--surface); color:var(--hint); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:0; transition:border-color .12s, color .12s, background .12s;
+  }
+  .profile-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .profile-btn.logged-in { background:var(--accent-bg); border-color:var(--accent); color:var(--accent-ink); }
+  .profile-btn svg { width:18px; height:18px; }
+  .profile-pop {
+    position:absolute; top:calc(100% + 10px); right:0; background:var(--surface); border:0.5px solid var(--line);
+    border-radius:12px; padding:1rem; width:210px; box-shadow:0 10px 28px rgba(0,0,0,0.14); z-index:20;
+  }
+  .profile-pop[hidden] { display:none; }
+  .profile-pop p { font-size:13px; color:var(--muted); margin:0 0 0.8rem; line-height:1.5; }
+  .profile-pop .btn { width:100%; }
+
   .lede { display:flex; align-items:baseline; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; margin-top:2rem; }
   .lede p { font-size:15px; color:var(--muted); margin:0; max-width:44ch; }
 
-  .bar { display:flex; gap:10px; margin-top:2rem; }
-  .search-wrap { position:relative; flex:1; }
-  .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--hint); pointer-events:none; }
+  .search-wrap { position:relative; margin-top:1.85rem; }
+  .search-wrap svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--hint); pointer-events:none; }
   #search {
     width:100%; background:var(--surface); color:var(--ink);
     border:0.5px solid var(--line-strong); border-radius:var(--radius);
-    padding:0.6rem 0.75rem 0.6rem 2.1rem; font:inherit; font-size:14px; outline:none;
+    padding:0.85rem 1rem 0.85rem 2.6rem; font:inherit; font-size:15.5px; outline:none;
     transition:border-color .12s, box-shadow .12s;
   }
   #search:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
-  #discipline-filter {
-    background:var(--surface); color:var(--ink); border:0.5px solid var(--line-strong);
-    border-radius:var(--radius); padding:0.6rem 0.75rem; font:inherit; font-size:14px;
-    outline:none; cursor:pointer; max-width:190px; transition:border-color .12s, box-shadow .12s;
+
+  .sort-tabs { display:flex; gap:8px; justify-content:center; margin:1.25rem 0 0; flex-wrap:wrap; }
+  .sort-tab {
+    font:inherit; font-size:13.5px; font-weight:500; padding:0.55rem 1.1rem; border-radius:999px;
+    border:0.5px solid var(--line-strong); background:var(--surface); color:var(--muted); cursor:pointer;
+    transition:background .12s, color .12s, border-color .12s;
   }
-  #discipline-filter:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
+  .sort-tab:hover { border-color:var(--accent); color:var(--accent-ink); }
+  .sort-tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+  @media (prefers-color-scheme: dark) { .sort-tab.active { color:#12100c; } }
 
-  .count { font-size:12px; color:var(--hint); margin:0.9rem 0 0; }
+  .layout { display:flex; gap:2rem; align-items:flex-start; margin-top:1.75rem; }
+  .feed-main { flex:1; min-width:0; }
 
-  .cards { display:grid; gap:1rem; margin-top:1rem; }
+  .sidebar {
+    width:230px; flex:none; background:var(--surface); border:0.5px solid var(--line);
+    border-radius:14px; padding:1.25rem; position:sticky; top:1.5rem;
+  }
+  .sidebar-title { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--hint); margin:0 0 0.9rem; }
+  .field-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; }
+  .field-item {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; padding:0.45rem 0.6rem;
+    border-radius:8px; text-decoration:none; color:var(--ink); font-size:13.5px; transition:background .12s;
+  }
+  .field-item:hover { background:var(--paper); }
+  .field-item.active { background:var(--accent-bg); color:var(--accent-ink); font-weight:600; }
+  .field-item .field-count { font-size:11.5px; color:var(--hint); }
+  .field-item.active .field-count { color:var(--accent-ink); }
+
+  .count { font-size:12px; color:var(--hint); margin:0 0 0.9rem; }
+
+  .cards { display:grid; gap:1rem; }
   .card {
     display:block; background:var(--surface); border:0.5px solid var(--line); border-radius:14px;
     padding:1.25rem 1.4rem; text-decoration:none; color:inherit; cursor:pointer;
@@ -47,15 +90,31 @@
   .tag { font-size:11.5px; color:var(--muted); background:var(--paper); border:0.5px solid var(--line); border-radius:6px; padding:2px 8px; }
 
   .empty { text-align:center; color:var(--hint); font-size:14px; padding:2.5rem 0; }
-  @media (max-width:560px) { .bar { flex-direction:column; } #discipline-filter { max-width:none; } }
+
+  @media (max-width:800px) {
+    .layout { flex-direction:column; }
+    .sidebar { width:100%; position:static; }
+  }
+  @media (max-width:560px) { .wrap { padding-top:2rem; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header class="site">
-    <span class="mark">Rep<span class="z">0</span>rt</span>
-    <span class="meta">share what would otherwise be lost</span>
+    <div class="brand-group">
+      <span class="mark">Rep<span class="z">0</span>rt</span>
+      <span class="meta">share what would otherwise be lost</span>
+    </div>
+    <div class="profile-wrap">
+      <button type="button" class="profile-btn" id="profile-btn" aria-haspopup="true" aria-expanded="false" title="Account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      </button>
+      <div class="profile-pop" id="profile-pop" hidden>
+        <p>You're not logged in.</p>
+        <button type="button" class="btn primary" id="profile-login">Log in</button>
+      </div>
+    </div>
   </header>
 
   <section class="lede">
@@ -63,20 +122,31 @@
     <a class="cta" href="submit.html">Publish a result</a>
   </section>
 
-  <div class="bar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" id="search" placeholder="Search title, author, or tags…" autocomplete="off" />
-    </div>
-    <select id="discipline-filter" aria-label="Filter by discipline">
-      <option value="">All disciplines</option>
-    </select>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input type="text" id="search" placeholder="Search title, author, or tags…" autocomplete="off" />
+  </div>
+
+  <div class="sort-tabs" role="tablist" id="sort-tabs">
+    <button type="button" class="sort-tab active" data-sort="recent" role="tab" aria-selected="true">Most recent</button>
+    <button type="button" class="sort-tab" data-sort="discussed" role="tab" aria-selected="false">Most discussed</button>
+    <button type="button" class="sort-tab" data-sort="read" role="tab" aria-selected="false">Most read</button>
+    <button type="button" class="sort-tab" data-sort="trending" role="tab" aria-selected="false">Trending</button>
   </div>
 
   <p class="count" id="count"></p>
 
-  <div class="cards" id="cards"></div>
-  <p class="empty" id="empty" hidden>No reports match your search.</p>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="sidebar-title">Research fields</h2>
+      <ul class="field-list" id="field-list"></ul>
+    </aside>
+
+    <main class="feed-main">
+      <div class="cards" id="cards"></div>
+      <p class="empty" id="empty" hidden>No reports match your search.</p>
+    </main>
+  </div>
 
   <p class="foot">Every result has the bones of a paper, even the ones that never get published.</p>
 
