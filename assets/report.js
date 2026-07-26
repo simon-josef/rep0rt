@@ -20,18 +20,51 @@
   }
 
   // APA 7: "Last, F." / "Last, F., & Last2, G." / "Last, F., Last2, G., & Last3, H."
-  function apaAuthors(names) {
-    var formatted = names.map(apaAuthorOne);
+  function apaAuthors(authors) {
+    var formatted = authors.map(function (a) { return apaAuthorOne(a.name); });
     if (formatted.length === 1) return formatted[0];
     if (formatted.length === 2) return formatted[0] + ", & " + formatted[1];
     return formatted.slice(0, -1).join(", ") + ", & " + formatted[formatted.length - 1];
   }
 
   // Plain-prose byline: "A" / "A & B" / "A, B & C"
-  function displayAuthors(names) {
+  function displayAuthors(authors) {
+    var names = authors.map(function (a) { return a.name; });
     if (names.length === 1) return names[0];
     if (names.length === 2) return names[0] + " & " + names[1];
     return names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
+  }
+
+  // Dedups affiliations across authors and assigns each a footnote number,
+  // matching the superscript convention of a real journal byline.
+  function buildAffiliations(authors) {
+    var list = [];
+    var indexOf = {};
+    authors.forEach(function (a) {
+      if (!(a.affiliation in indexOf)) {
+        indexOf[a.affiliation] = list.length + 1;
+        list.push(a.affiliation);
+      }
+    });
+    return { list: list, indexOf: indexOf };
+  }
+
+  // "J. Okafor¹*, R. Beaumont²" — comma-separated with superscript
+  // affiliation numbers, matching the actual journal convention (not the
+  // "&"-joined plain-prose byline used elsewhere).
+  function authorsWithSuperscripts(authors, affIndexOf) {
+    return authors.map(function (a) {
+      var sup = String(affIndexOf[a.affiliation]) + (a.corresponding ? "," + CORRESPONDING_MARK : "");
+      return escapeHtml(a.name) + "<sup>" + sup + "</sup>";
+    }).join(", ");
+  }
+
+  var CORRESPONDING_MARK = "*";
+
+  function escapeHtml(text) {
+    var div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   function formatDateLong(iso) {
@@ -78,8 +111,21 @@
   document.getElementById("r-data-label").textContent = report.dataAvailable ? "Data available" : "No data shared";
 
   document.getElementById("r-title").textContent = report.title;
-  document.getElementById("r-author").textContent = displayAuthors(report.authors);
   document.getElementById("r-date").textContent = formatDateLong(report.date);
+
+  var affil = buildAffiliations(report.authors);
+  document.getElementById("r-author").innerHTML = authorsWithSuperscripts(report.authors, affil.indexOf);
+
+  var affilEl = document.getElementById("r-affiliations");
+  var correspondingAuthor = report.authors.filter(function (a) { return a.corresponding; })[0];
+  var affilHtml = affil.list.map(function (name, i) {
+    return '<span class="aff-line"><sup>' + (i + 1) + "</sup> " + escapeHtml(name) + "</span>";
+  }).join("");
+  if (correspondingAuthor) {
+    affilHtml += '<span class="aff-line"><sup>' + CORRESPONDING_MARK + "</sup> Corresponding author: " +
+      escapeHtml(correspondingAuthor.name) + " (" + escapeHtml(correspondingAuthor.email) + ")</span>";
+  }
+  affilEl.innerHTML = affilHtml;
 
   var tagsEl = document.getElementById("r-tags");
   report.tags.forEach(function (t) {
@@ -136,7 +182,7 @@
     figuresEl.parentElement.hidden = true;
   }
 
-  if (window.REP0RT_COMMENTS) REP0RT_COMMENTS.init(report.authors[0]);
+  if (window.REP0RT_COMMENTS) REP0RT_COMMENTS.init(report.authors[0].name);
 
   if (window.renderMathInElement) {
     renderMathInElement(document.getElementById("pdf-content"), KATEX_OPTS);
@@ -180,7 +226,9 @@
       ".pdf-doc .pdf-tagline { text-align: center; font-size: 8.5pt; font-style: italic; color: #666666; margin: 0 0 22pt; }",
       ".pdf-doc .pdf-title-block { text-align: center; margin: 0 0 18pt; }",
       ".pdf-doc .pdf-title { font-size: 16.5pt; font-weight: 700; margin: 0 0 12pt; line-height: 1.35; }",
-      ".pdf-doc .pdf-author { font-size: 11.5pt; margin: 0 0 3pt; }",
+      ".pdf-doc .pdf-author { font-size: 11.5pt; margin: 0 0 6pt; }",
+      ".pdf-doc .pdf-author sup, .pdf-doc .pdf-affil sup { font-size: 0.7em; }",
+      ".pdf-doc .pdf-affil { font-size: 8.5pt; color: #555555; line-height: 1.6; margin: 0 0 4pt; }",
       ".pdf-doc .pdf-subline { font-size: 9.5pt; color: #444444; margin: 0 0 3pt; }",
       ".pdf-doc .pdf-info-row { overflow: hidden; margin: 0 0 16pt; }",
       ".pdf-doc .pdf-info-col { float: left; width: 48%; border: 0.75pt solid #999999; border-radius: 8pt; background: #f7f7f5; padding: 9pt 11pt; min-height: 120pt; }",
@@ -234,10 +282,25 @@
     titleEl.textContent = report.title;
     titleBlock.appendChild(titleEl);
 
+    var pdfAffil = buildAffiliations(report.authors);
+
     var authorEl = document.createElement("p");
     authorEl.className = "pdf-author";
-    authorEl.textContent = displayAuthors(report.authors);
+    authorEl.innerHTML = authorsWithSuperscripts(report.authors, pdfAffil.indexOf);
     titleBlock.appendChild(authorEl);
+
+    var affilEl = document.createElement("p");
+    affilEl.className = "pdf-affil";
+    var pdfCorresponding = report.authors.filter(function (a) { return a.corresponding; })[0];
+    var pdfAffilHtml = pdfAffil.list.map(function (name, i) {
+      return "<sup>" + (i + 1) + "</sup> " + escapeHtml(name) + "<br>";
+    }).join("");
+    if (pdfCorresponding) {
+      pdfAffilHtml += "<sup>" + CORRESPONDING_MARK + "</sup> Corresponding author: " +
+        escapeHtml(pdfCorresponding.name) + " (" + escapeHtml(pdfCorresponding.email) + ")";
+    }
+    affilEl.innerHTML = pdfAffilHtml;
+    titleBlock.appendChild(affilEl);
 
     doc.appendChild(titleBlock);
 

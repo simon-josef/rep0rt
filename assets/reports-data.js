@@ -14,8 +14,16 @@ window.REP0RT_DATA = [
     "title": "Growth-mindset framing does not improve retention in an intro statistics course",
     "discipline": "psy",
     "authors": [
-      "J. Okafor",
-      "R. Beaumont"
+      {
+        "name": "J. Okafor",
+        "affiliation": "Department of Psychology, Lagos State University",
+        "corresponding": true,
+        "email": "j.okafor@lsu.example"
+      },
+      {
+        "name": "R. Beaumont",
+        "affiliation": "School of Education, University of Bristol"
+      }
     ],
     "date": "2026-03-14",
     "tags": [
@@ -32,7 +40,12 @@ window.REP0RT_DATA = [
     "title": "Working-memory capacity does not predict garden-path recovery time",
     "discipline": "cogsci",
     "authors": [
-      "L. Meunier"
+      {
+        "name": "L. Meunier",
+        "affiliation": "Laboratoire de Sciences Cognitives, Universite de Lyon",
+        "corresponding": true,
+        "email": "l.meunier@univ-lyon.example"
+      }
     ],
     "date": "2026-01-22",
     "tags": [
@@ -49,9 +62,20 @@ window.REP0RT_DATA = [
     "title": "tDCS over left DLPFC fails to modulate risk-taking in the Balloon Analogue Risk Task",
     "discipline": "neuro",
     "authors": [
-      "R. Ionescu",
-      "P. Aldana",
-      "K. Mbeki"
+      {
+        "name": "R. Ionescu",
+        "affiliation": "Department of Neuroscience, University of Bucharest",
+        "corresponding": true,
+        "email": "r.ionescu@unibuc.example"
+      },
+      {
+        "name": "P. Aldana",
+        "affiliation": "Independent researcher"
+      },
+      {
+        "name": "K. Mbeki",
+        "affiliation": "Centre for Cognitive Neuroscience, University of Nairobi"
+      }
     ],
     "date": "2025-11-08",
     "tags": [
@@ -68,7 +92,12 @@ window.REP0RT_DATA = [
     "title": "No detectable deviation from Beer-Lambert linearity in dilute colloidal suspensions up to 5% v/v",
     "discipline": "physics",
     "authors": [
-      "A. Kowalczyk"
+      {
+        "name": "A. Kowalczyk",
+        "affiliation": "Institute of Physical Chemistry, Polish Academy of Sciences",
+        "corresponding": true,
+        "email": "a.kowalczyk@ichf.example"
+      }
     ],
     "date": "2025-09-30",
     "tags": [
@@ -85,7 +114,12 @@ window.REP0RT_DATA = [
     "title": "Copper(I) catalyst shows no rate enhancement over uncatalyzed background below 0°C",
     "discipline": "chem",
     "authors": [
-      "S. Haddad"
+      {
+        "name": "S. Haddad",
+        "affiliation": "Department of Chemistry, American University of Beirut",
+        "corresponding": true,
+        "email": "s.haddad@aub.example"
+      }
     ],
     "date": "2025-08-17",
     "tags": [
@@ -102,8 +136,16 @@ window.REP0RT_DATA = [
     "title": "Dietary resveratrol supplementation does not extend lifespan in outbred Drosophila melanogaster",
     "discipline": "bio",
     "authors": [
-      "T. Nakashima",
-      "E. Solberg"
+      {
+        "name": "T. Nakashima",
+        "affiliation": "Department of Molecular Biology, Kyoto University",
+        "corresponding": true,
+        "email": "t.nakashima@kyoto-u.example"
+      },
+      {
+        "name": "E. Solberg",
+        "affiliation": "Independent researcher"
+      }
     ],
     "date": "2025-06-02",
     "tags": [
@@ -120,7 +162,12 @@ window.REP0RT_DATA = [
     "title": "Attention dropout does not reduce overfitting in small-scale transformer fine-tuning",
     "discipline": "cs",
     "authors": [
-      "D. Alvarado"
+      {
+        "name": "D. Alvarado",
+        "affiliation": "Independent researcher",
+        "corresponding": true,
+        "email": "d.alvarado@rep0rt.example"
+      }
     ],
     "date": "2026-02-10",
     "tags": [
@@ -137,7 +184,12 @@ window.REP0RT_DATA = [
     "title": "Bootstrap and asymptotic intervals show no coverage difference for skewed counts at n=200",
     "discipline": "stat",
     "authors": [
-      "M. Petrov"
+      {
+        "name": "M. Petrov",
+        "affiliation": "Department of Statistics, Sofia University",
+        "corresponding": true,
+        "email": "m.petrov@uni-sofia.example"
+      }
     ],
     "date": "2025-12-05",
     "tags": [
@@ -154,8 +206,16 @@ window.REP0RT_DATA = [
     "title": "Minimum-wage increases in mid-size US counties show no measurable teen-employment effect, 2015-2023",
     "discipline": "econ",
     "authors": [
-      "C. Whitfield",
-      "N. Osei"
+      {
+        "name": "C. Whitfield",
+        "affiliation": "Department of Economics, University of Manchester",
+        "corresponding": true,
+        "email": "c.whitfield@manchester.example"
+      },
+      {
+        "name": "N. Osei",
+        "affiliation": "Independent researcher"
+      }
     ],
     "date": "2025-10-19",
     "tags": [
@@ -172,7 +232,12 @@ window.REP0RT_DATA = [
     "title": "Bilingual toddlers show no code-switching cost in naming latency versus monolinguals",
     "discipline": "ling",
     "authors": [
-      "F. Adeyemi"
+      {
+        "name": "F. Adeyemi",
+        "affiliation": "Department of Linguistics, University of Ibadan",
+        "corresponding": true,
+        "email": "f.adeyemi@ui.example"
+      }
     ],
     "date": "2025-07-25",
     "tags": [

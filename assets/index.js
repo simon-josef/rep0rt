@@ -27,7 +27,8 @@
   }
 
   // "A" / "A & B" / "A, B & C"
-  function displayAuthors(names) {
+  function displayAuthors(authors) {
+    var names = authors.map(function (a) { return a.name; });
     if (names.length === 1) return names[0];
     if (names.length === 2) return names[0] + " & " + names[1];
     return names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
@@ -67,7 +68,8 @@
     var filtered = data.filter(function (r) {
       if (disc && r.discipline !== disc) return false;
       if (!q) return true;
-      var haystack = (r.title + " " + r.authors.join(" ") + " " + r.tags.join(" ")).toLowerCase();
+      var authorNames = r.authors.map(function (a) { return a.name; }).join(" ");
+      var haystack = (r.title + " " + authorNames + " " + r.tags.join(" ")).toLowerCase();
       return haystack.indexOf(q) !== -1;
     });
 
