@@ -188,75 +188,16 @@
     renderMathInElement(document.getElementById("pdf-content"), KATEX_OPTS);
   }
 
-  // --- PDF export -----------------------------------------------------
-  // Built as an independent document (not a clone of the on-screen DOM),
-  // laid out like a LaTeX article: centered title/author/date block, an
-  // indented abstract, numbered sections, unnumbered references. Forces
-  // a formal serif type and fixed light-mode colors regardless of the
-  // reader's dark-mode setting.
-  //
-  // PDF_WIDTH_PX must match html2canvas's windowWidth below — mismatched
-  // values are what caused long unbreakable strings (DOI URLs) to run
-  // past the page edge and get clipped instead of wrapping.
-  //
-  // Page breaks: html2pdf's CSS break-inside detection is unreliable on
-  // its own, so PAGEBREAK_AVOID_SELECTORS is passed straight to its
-  // pagebreak.avoid option, which is the mechanism it documents as
-  // authoritative for "don't split this element across a page".
-  var PDF_WIDTH_PX = 720;
-  var PAGEBREAK_AVOID_SELECTORS = [
-    ".pdf-mast", ".pdf-title-block", ".pdf-info-row", "h3",
-    ".fig-block", ".ref-entry", ".pdf-about"
-  ];
-
+  // --- Printable version -----------------------------------------------
+  // Built once into #print-doc (styling lives in report.html's
+  // @media print block). "Download PDF" just calls window.print() so the
+  // reader saves it via their browser's own print dialog — that uses the
+  // browser's real layout/pagination engine instead of rasterizing HTML
+  // through html2canvas, which is what caused every previous rendering
+  // bug (blank pages, clipped text, corrupted margins). No third-party
+  // dependency, no WASM, nothing left to break here.
   function buildPdfDoc() {
     var doc = document.createElement("div");
-    doc.className = "pdf-doc";
-
-    var style = document.createElement("style");
-    style.textContent = [
-      ".pdf-doc { font-family: Georgia, 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.5; color: #111111; background: #ffffff; }",
-      ".pdf-doc, .pdf-doc * { box-sizing: border-box; overflow-wrap: break-word; word-break: break-word; }",
-      ".pdf-doc .pdf-accent-bar { background: #1F5FA6; height: 5pt; margin: 0 0 10pt; }",
-      ".pdf-doc .pdf-mast { border-bottom: 0.75pt solid #111111; padding: 6pt 0 8pt; margin: 0 0 4pt; overflow: hidden; }",
-      ".pdf-doc .pdf-mast .wordmark { float: left; font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: 17pt; color: #111111; }",
-      ".pdf-doc .pdf-mast .wordmark .zero { color: #1F5FA6; }",
-      ".pdf-doc .zero-inline { color: #1F5FA6; font-weight: 700; }",
-      ".pdf-doc .pdf-mast .disc { float: right; font-size: 9pt; letter-spacing: 0.03em; color: #444444; padding-top: 3pt; }",
-      ".pdf-doc .pdf-tagline { text-align: center; font-size: 8.5pt; font-style: italic; color: #666666; margin: 0 0 22pt; }",
-      ".pdf-doc .pdf-title-block { text-align: center; margin: 0 0 18pt; }",
-      ".pdf-doc .pdf-title { font-size: 16.5pt; font-weight: 700; margin: 0 0 12pt; line-height: 1.35; }",
-      ".pdf-doc .pdf-author { font-size: 11.5pt; margin: 0 0 6pt; }",
-      ".pdf-doc .pdf-author sup, .pdf-doc .pdf-affil sup { font-size: 0.7em; }",
-      ".pdf-doc .pdf-affil { font-size: 8.5pt; color: #555555; line-height: 1.6; margin: 0 0 4pt; }",
-      ".pdf-doc .pdf-subline { font-size: 9.5pt; color: #444444; margin: 0 0 3pt; }",
-      ".pdf-doc .pdf-info-row { overflow: hidden; margin: 0 0 16pt; }",
-      ".pdf-doc .pdf-info-col { float: left; width: 48%; border: 0.75pt solid #999999; border-radius: 8pt; background: #f7f7f5; padding: 9pt 11pt; min-height: 120pt; }",
-      ".pdf-doc .pdf-info-col.right { float: right; }",
-      ".pdf-doc .info-heading { font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #1F5FA6; margin: 0 0 7pt; border-bottom: 0.75pt solid #1F5FA6; padding-bottom: 4pt; }",
-      ".pdf-doc .info-line-label { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #555555; margin: 8pt 0 2pt; }",
-      ".pdf-doc .info-line-label:first-of-type { margin-top: 0; }",
-      ".pdf-doc .info-line { font-size: 9pt; line-height: 1.4; margin: 0; }",
-      ".pdf-doc .info-line.data-yes { color: #1F5FA6; font-weight: 700; }",
-      ".pdf-doc .info-line.data-no { color: #777777; }",
-      ".pdf-doc .abstract-text { font-size: 9.5pt; line-height: 1.5; text-align: justify; margin: 0; }",
-      ".pdf-doc .pdf-howcite { font-size: 8.5pt; color: #444444; margin: 0 0 22pt; padding-top: 8pt; border-top: 0.75pt solid #cccccc; }",
-      ".pdf-doc .pdf-howcite b { color: #111111; }",
-      ".pdf-doc h3 { font-size: 11.5pt; font-weight: 700; margin: 20pt 0 8pt; border-bottom: 1pt solid #1F5FA6; padding-bottom: 4pt; }",
-      ".pdf-doc .body { font-size: 11pt; line-height: 1.5; white-space: pre-wrap; text-align: justify; }",
-      ".pdf-doc .fig-block { margin: 0 0 14pt; }",
-      ".pdf-doc .fig-label { font-weight: 700; margin: 12pt 0 2pt; }",
-      ".pdf-doc .fig-caption { font-style: italic; margin: 0 0 6pt; }",
-      ".pdf-doc .ph { border: 0.75pt solid #999999; border-radius: 8pt; background: #f4f4f2; min-height: 110pt; }",
-      ".pdf-doc .ref-columns { overflow: hidden; }",
-      ".pdf-doc .ref-col { float: left; width: 48%; }",
-      ".pdf-doc .ref-col.right { float: right; }",
-      ".pdf-doc .ref-entry { margin: 0 0 10pt; font-size: 9pt; line-height: 1.4; text-align: justify; }",
-      ".pdf-doc .pdf-about { border: 0.75pt solid #999999; border-radius: 8pt; background: #f7f7f5; padding: 11pt 13pt; margin: 26pt 0 0; }",
-      ".pdf-doc .about-label { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 5pt; color: #444444; }",
-      ".pdf-doc .about-text { margin: 0; font-size: 9pt; line-height: 1.5; color: #222222; }"
-    ].join("\n");
-    doc.appendChild(style);
 
     var bar = document.createElement("div");
     bar.className = "pdf-accent-bar";
@@ -411,36 +352,11 @@
     return doc;
   }
 
-  var button = document.getElementById("download-pdf");
-  button.addEventListener("click", function () {
-    var original = button.textContent;
-    button.textContent = "Preparing PDF…";
-    button.disabled = true;
+  var printDoc = document.getElementById("print-doc");
+  printDoc.appendChild(buildPdfDoc());
+  if (window.renderMathInElement) renderMathInElement(printDoc, KATEX_OPTS);
 
-    // Deliberately left detached from the live document: html2canvas
-    // clones whatever document a source element belongs to, and an
-    // attached-but-offscreen container (position:fixed; left:-9999px)
-    // gets cloned along with that offscreen position, so the capture
-    // ends up empty. Building it detached and handing it straight to
-    // html2pdf avoids that.
-    var container = buildPdfDoc();
-    container.style.width = PDF_WIDTH_PX + "px";
-
-    if (window.renderMathInElement) renderMathInElement(container, KATEX_OPTS);
-
-    var opt = {
-      margin: 25.4,
-      filename: "rep0rt-" + report.id + ".pdf",
-      html2canvas: { scale: 2, backgroundColor: "#ffffff", windowWidth: PDF_WIDTH_PX },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      pagebreak: { mode: ["css", "legacy"], avoid: PAGEBREAK_AVOID_SELECTORS }
-    };
-
-    function reset() {
-      button.textContent = original;
-      button.disabled = false;
-    }
-
-    html2pdf().set(opt).from(container).save().then(reset).catch(reset);
+  document.getElementById("download-pdf").addEventListener("click", function () {
+    window.print();
   });
 })();
