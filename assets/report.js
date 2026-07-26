@@ -100,6 +100,7 @@
   var dataBadge = document.getElementById("r-data-badge");
   dataBadge.classList.toggle("available", !!report.dataAvailable);
   document.getElementById("r-data-label").textContent = report.dataAvailable ? "Data available" : "No data shared";
+  document.getElementById("data-section").hidden = !report.dataAvailable;
 
   document.getElementById("r-title").textContent = report.title;
   document.getElementById("r-date").textContent = formatDateLong(report.date);
