@@ -44,11 +44,24 @@
   };
 
   // --- Discipline sidebar --------------------------------------------
+  // Matches the <option> list in submit.html's discipline picker — full
+  // names in the sidebar, not the short Rep0rt.<code> form used elsewhere.
+  var DISCIPLINE_NAMES = {
+    psy: "Psychology", cogsci: "Cognitive Science", neuro: "Neuroscience",
+    physics: "Physics", chem: "Chemistry", bio: "Biology", med: "Medicine",
+    cs: "Computer Science", stat: "Statistics", math: "Mathematics",
+    econ: "Economics", soc: "Sociology", ling: "Linguistics", hist: "History",
+    polisci: "Political Science", phil: "Philosophy", anthro: "Anthropology",
+    edu: "Education", env: "Environmental Science", eng: "Engineering", other: "Other"
+  };
+
   var disciplineCounts = {};
   data.forEach(function (r) {
     disciplineCounts[r.discipline] = (disciplineCounts[r.discipline] || 0) + 1;
   });
-  var disciplines = Object.keys(disciplineCounts).sort();
+  var disciplines = Object.keys(disciplineCounts).sort(function (a, b) {
+    return (DISCIPLINE_NAMES[a] || a).localeCompare(DISCIPLINE_NAMES[b] || b);
+  });
 
   function renderFieldList() {
     fieldListEl.innerHTML = "";
@@ -66,7 +79,8 @@
       var a = document.createElement("a");
       a.className = "field-item" + (state.discipline === d ? " active" : "");
       a.href = "index.html?discipline=" + encodeURIComponent(d);
-      a.innerHTML = '<span>Rep0rt.' + d + '</span><span class="field-count"></span>';
+      a.innerHTML = '<span></span><span class="field-count"></span>';
+      a.querySelector("span").textContent = DISCIPLINE_NAMES[d] || d;
       a.querySelector(".field-count").textContent = disciplineCounts[d];
       li.appendChild(a);
       fieldListEl.appendChild(li);

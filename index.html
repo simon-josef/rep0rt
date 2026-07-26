@@ -13,6 +13,13 @@
 
   header.site { justify-content:space-between; }
   .brand-group { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .header-actions { display:flex; align-items:center; gap:12px; flex:none; }
+  .btn-publish {
+    font-size:13.5px; font-weight:500; padding:0.5rem 0.95rem; border-radius:var(--radius);
+    border:0.5px solid var(--line-strong); color:var(--ink); text-decoration:none; white-space:nowrap;
+    transition:border-color .12s, color .12s;
+  }
+  .btn-publish:hover { border-color:var(--accent); color:var(--accent-ink); }
 
   .profile-wrap { position:relative; flex:none; }
   .profile-btn {
@@ -31,28 +38,26 @@
   .profile-pop p { font-size:13px; color:var(--muted); margin:0 0 0.8rem; line-height:1.5; }
   .profile-pop .btn { width:100%; }
 
-  .lede { display:flex; align-items:baseline; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; margin-top:2rem; }
-  .lede p { font-size:15px; color:var(--muted); margin:0; max-width:44ch; }
+  .lede { font-size:14.5px; color:var(--muted); margin:1.75rem 0 0; max-width:62ch; }
 
-  .search-wrap { position:relative; margin-top:1.85rem; }
-  .search-wrap svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--hint); pointer-events:none; }
+  .search-wrap { position:relative; margin-top:1.5rem; }
+  .search-wrap svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--hint); pointer-events:none; }
   #search {
     width:100%; background:var(--surface); color:var(--ink);
     border:0.5px solid var(--line-strong); border-radius:var(--radius);
-    padding:0.85rem 1rem 0.85rem 2.6rem; font:inherit; font-size:15.5px; outline:none;
+    padding:0.65rem 0.85rem 0.65rem 2.35rem; font:inherit; font-size:14.5px; outline:none;
     transition:border-color .12s, box-shadow .12s;
   }
   #search:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
 
-  .sort-tabs { display:flex; gap:8px; justify-content:center; margin:1.25rem 0 0; flex-wrap:wrap; }
+  .sort-tabs { display:flex; gap:22px; justify-content:center; margin:1.5rem 0 0; flex-wrap:wrap; border-bottom:0.5px solid var(--line); }
   .sort-tab {
-    font:inherit; font-size:13.5px; font-weight:500; padding:0.55rem 1.1rem; border-radius:999px;
-    border:0.5px solid var(--line-strong); background:var(--surface); color:var(--muted); cursor:pointer;
-    transition:background .12s, color .12s, border-color .12s;
+    font:inherit; font-size:13.5px; font-weight:500; padding:0.7rem 1px; margin-bottom:-0.5px;
+    background:none; border:none; border-bottom:2px solid transparent; color:var(--muted); cursor:pointer;
+    transition:color .12s, border-color .12s;
   }
-  .sort-tab:hover { border-color:var(--accent); color:var(--accent-ink); }
-  .sort-tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
-  @media (prefers-color-scheme: dark) { .sort-tab.active { color:#12100c; } }
+  .sort-tab:hover { color:var(--ink); }
+  .sort-tab.active { color:var(--accent-ink); border-bottom-color:var(--accent); font-weight:600; }
 
   .layout { display:flex; gap:2rem; align-items:flex-start; margin-top:1.75rem; }
   .feed-main { flex:1; min-width:0; }
@@ -106,21 +111,21 @@
       <span class="mark">Rep<span class="z">0</span>rt</span>
       <span class="meta">share what would otherwise be lost</span>
     </div>
-    <div class="profile-wrap">
-      <button type="button" class="profile-btn" id="profile-btn" aria-haspopup="true" aria-expanded="false" title="Account">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
-      </button>
-      <div class="profile-pop" id="profile-pop" hidden>
-        <p>You're not logged in.</p>
-        <button type="button" class="btn primary" id="profile-login">Log in</button>
+    <div class="header-actions">
+      <a class="btn-publish" href="submit.html">Publish a result</a>
+      <div class="profile-wrap">
+        <button type="button" class="profile-btn" id="profile-btn" aria-haspopup="true" aria-expanded="false" title="Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        </button>
+        <div class="profile-pop" id="profile-pop" hidden>
+          <p>You're not logged in.</p>
+          <button type="button" class="btn primary" id="profile-login">Log in</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <section class="lede">
-    <p>An open, citable record of results that didn't confirm the hypothesis — so the field stops repeating them.</p>
-    <a class="cta" href="submit.html">Publish a result</a>
-  </section>
+  <p class="lede">An open, citable record of results that didn't confirm the hypothesis — so the field stops repeating them.</p>
 
   <div class="search-wrap">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
