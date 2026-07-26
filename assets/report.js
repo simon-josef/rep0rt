@@ -109,47 +109,98 @@
   }
 
   // --- PDF export -----------------------------------------------------
-  // Built as an independent document (not a clone of the on-screen DOM):
-  // forces a formal serif type and fixed light-mode colors regardless of
-  // the reader's dark-mode setting, uses full 1-inch APA margins, and
-  // adds an APA "suggested citation" block plus a real reference list —
-  // none of which the live page's own styling is meant to carry.
+  // Built as an independent document (not a clone of the on-screen DOM),
+  // laid out like a LaTeX article: centered title/author/date block, an
+  // indented abstract, numbered sections, unnumbered references. Forces
+  // a formal serif type and fixed light-mode colors regardless of the
+  // reader's dark-mode setting.
+  //
+  // PDF_WIDTH_PX must match html2canvas's windowWidth below — mismatched
+  // values are what caused long unbreakable strings (DOI URLs) to run
+  // past the page edge and get clipped instead of wrapping.
+  //
+  // Page breaks: html2pdf's CSS break-inside detection is unreliable on
+  // its own, so PAGEBREAK_AVOID_SELECTORS is passed straight to its
+  // pagebreak.avoid option, which is the mechanism it documents as
+  // authoritative for "don't split this element across a page".
+  var PDF_WIDTH_PX = 720;
+  var PAGEBREAK_AVOID_SELECTORS = [
+    ".pdf-mast", ".pdf-title-block", ".pdf-cite", ".pdf-abstract",
+    "h3", ".fig-block", ".ref-entry", ".pdf-about"
+  ];
+
   function buildPdfDoc() {
     var doc = document.createElement("div");
     doc.className = "pdf-doc";
 
     var style = document.createElement("style");
     style.textContent = [
-      ".pdf-doc { font-family: Georgia, 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.9; color: #111111; background: #ffffff; }",
-      ".pdf-doc .pdf-title { font-size: 17pt; font-weight: 700; margin: 0 0 6pt; line-height: 1.35; }",
-      ".pdf-doc .pdf-meta { font-size: 10.5pt; color: #333333; margin: 0 0 4pt; }",
-      ".pdf-doc .pdf-tags { font-size: 10pt; color: #555555; margin: 0 0 16pt; }",
-      ".pdf-doc .pdf-cite { border: 0.75pt solid #999999; padding: 10pt 12pt; margin: 0 0 20pt; }",
-      ".pdf-doc .cite-label { font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 5pt; color: #333333; }",
-      ".pdf-doc .cite-text { margin: 0; padding-left: 1.27cm; text-indent: -1.27cm; font-size: 10.5pt; line-height: 1.5; }",
-      ".pdf-doc h3 { font-size: 12pt; font-weight: 700; margin: 20pt 0 8pt; padding-bottom: 3pt; border-bottom: 0.75pt solid #999999; }",
-      ".pdf-doc .body { font-size: 12pt; line-height: 1.9; white-space: pre-wrap; }",
-      ".pdf-doc .fig-label { font-weight: 700; margin: 14pt 0 2pt; }",
-      ".pdf-doc .fig-caption { font-style: italic; margin: 0 0 8pt; }",
-      ".pdf-doc .ph { border: 0.75pt solid #999999; background: #f2f2f0; min-height: 110pt; }",
-      ".pdf-doc .ref-entry { padding-left: 1.27cm; text-indent: -1.27cm; margin: 0 0 9pt; font-size: 11.5pt; line-height: 1.6; }"
+      ".pdf-doc { font-family: Georgia, 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.5; color: #111111; background: #ffffff; }",
+      ".pdf-doc, .pdf-doc * { box-sizing: border-box; overflow-wrap: break-word; word-break: break-word; }",
+      ".pdf-doc .pdf-mast { border-top: 1.5pt solid #111111; border-bottom: 0.75pt solid #111111; padding: 8pt 0; margin: 0 0 30pt; overflow: hidden; }",
+      ".pdf-doc .pdf-mast .wordmark { float: left; font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: 17pt; color: #111111; }",
+      ".pdf-doc .pdf-mast .wordmark .zero { color: #1F5FA6; }",
+      ".pdf-doc .pdf-mast .disc { float: right; font-size: 9pt; letter-spacing: 0.03em; color: #444444; font-family: Georgia, serif; padding-top: 3pt; }",
+      ".pdf-doc .pdf-title-block { text-align: center; margin: 0 0 20pt; }",
+      ".pdf-doc .pdf-title { font-size: 16.5pt; font-weight: 700; margin: 0 0 12pt; line-height: 1.35; }",
+      ".pdf-doc .pdf-author { font-size: 11.5pt; margin: 0 0 3pt; }",
+      ".pdf-doc .pdf-subline { font-size: 9.5pt; color: #444444; margin: 0 0 3pt; }",
+      ".pdf-doc .pdf-tags { font-size: 9pt; font-style: italic; color: #555555; margin: 8pt 0 0; }",
+      ".pdf-doc .pdf-cite { border-top: 0.75pt solid #999999; border-bottom: 0.75pt solid #999999; padding: 8pt 0; margin: 0 0 22pt; }",
+      ".pdf-doc .cite-label { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 4pt; color: #444444; }",
+      ".pdf-doc .cite-text { margin: 0; font-size: 9.5pt; line-height: 1.45; }",
+      ".pdf-doc .pdf-abstract { margin: 0 0 24pt; }",
+      ".pdf-doc .abstract-label { text-align: center; font-size: 10.5pt; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 8pt; }",
+      ".pdf-doc .abstract-text { font-size: 10.5pt; line-height: 1.5; text-align: justify; margin: 0 32pt; }",
+      ".pdf-doc h3 { font-size: 11.5pt; font-weight: 700; margin: 20pt 0 8pt; }",
+      ".pdf-doc h3 .num { margin-right: 6pt; }",
+      ".pdf-doc .body { font-size: 11pt; line-height: 1.5; white-space: pre-wrap; text-align: justify; }",
+      ".pdf-doc .fig-block { margin: 0 0 14pt; }",
+      ".pdf-doc .fig-label { font-weight: 700; margin: 12pt 0 2pt; }",
+      ".pdf-doc .fig-caption { font-style: italic; margin: 0 0 6pt; }",
+      ".pdf-doc .ph { border: 0.75pt solid #999999; background: #f4f4f2; min-height: 110pt; }",
+      ".pdf-doc .ref-entry { margin: 0 0 10pt; font-size: 10pt; line-height: 1.45; text-align: justify; }",
+      ".pdf-doc .pdf-about { border: 0.75pt solid #999999; background: #f7f7f5; padding: 11pt 13pt; margin: 26pt 0 0; }",
+      ".pdf-doc .about-label { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 5pt; color: #444444; }",
+      ".pdf-doc .about-text { margin: 0; font-size: 9pt; line-height: 1.5; color: #222222; }"
     ].join("\n");
     doc.appendChild(style);
+
+    var mast = document.createElement("div");
+    mast.className = "pdf-mast";
+    mast.innerHTML = '<span class="wordmark">Rep<span class="zero">0</span>rt</span>' +
+      '<span class="disc">Rep0rt.' + report.discipline + '</span>';
+    doc.appendChild(mast);
+
+    var titleBlock = document.createElement("div");
+    titleBlock.className = "pdf-title-block";
 
     var titleEl = document.createElement("h1");
     titleEl.className = "pdf-title";
     titleEl.textContent = report.title;
-    doc.appendChild(titleEl);
+    titleBlock.appendChild(titleEl);
 
-    var metaEl = document.createElement("p");
-    metaEl.className = "pdf-meta";
-    metaEl.textContent = "Rep0rt." + report.discipline + "  ·  " + report.author + "  ·  " + formatDateLong(report.date);
-    doc.appendChild(metaEl);
+    var authorEl = document.createElement("p");
+    authorEl.className = "pdf-author";
+    authorEl.textContent = report.author;
+    titleBlock.appendChild(authorEl);
+
+    var submittedEl = document.createElement("p");
+    submittedEl.className = "pdf-subline";
+    submittedEl.textContent = "Submitted " + formatDateLong(report.date);
+    titleBlock.appendChild(submittedEl);
+
+    var dataEl = document.createElement("p");
+    dataEl.className = "pdf-subline";
+    dataEl.textContent = report.dataAvailable ? "Data and code available" : "No data or code shared";
+    titleBlock.appendChild(dataEl);
 
     var tagsP = document.createElement("p");
     tagsP.className = "pdf-tags";
     tagsP.textContent = "Keywords: " + report.tags.join(", ");
-    doc.appendChild(tagsP);
+    titleBlock.appendChild(tagsP);
+
+    doc.appendChild(titleBlock);
 
     var citeBox = document.createElement("div");
     citeBox.className = "pdf-cite";
@@ -164,15 +215,28 @@
     citeBox.appendChild(citeText);
     doc.appendChild(citeBox);
 
+    var abstractBlock = document.createElement("div");
+    abstractBlock.className = "pdf-abstract";
+    var abstractLabel = document.createElement("p");
+    abstractLabel.className = "abstract-label";
+    abstractLabel.textContent = "Abstract";
+    var abstractText = document.createElement("p");
+    abstractText.className = "abstract-text";
+    abstractText.textContent = body.abstract || "";
+    abstractBlock.appendChild(abstractLabel);
+    abstractBlock.appendChild(abstractText);
+    doc.appendChild(abstractBlock);
+
+    var sectionNum = 0;
     [
-      ["Abstract", body.abstract],
       ["Theory and Expectations", body.theory],
       ["Hypothesis", body.hypothesis],
       ["Results", body.results],
       ["Reflections", body.reflections]
     ].forEach(function (s) {
+      sectionNum++;
       var h = document.createElement("h3");
-      h.textContent = s[0];
+      h.innerHTML = '<span class="num">' + sectionNum + '.</span>' + s[0];
       var p = document.createElement("div");
       p.className = "body";
       p.textContent = s[1] || "";
@@ -181,10 +245,13 @@
     });
 
     if ((body.figures || []).length) {
+      sectionNum++;
       var figH = document.createElement("h3");
-      figH.textContent = "Figures";
+      figH.innerHTML = '<span class="num">' + sectionNum + '.</span>Figures';
       doc.appendChild(figH);
       body.figures.forEach(function (caption, i) {
+        var block = document.createElement("div");
+        block.className = "fig-block";
         var label = document.createElement("p");
         label.className = "fig-label";
         label.textContent = "Figure " + (i + 1);
@@ -193,9 +260,10 @@
         cap.textContent = caption;
         var ph = document.createElement("div");
         ph.className = "ph";
-        doc.appendChild(label);
-        doc.appendChild(cap);
-        doc.appendChild(ph);
+        block.appendChild(label);
+        block.appendChild(cap);
+        block.appendChild(ph);
+        doc.appendChild(block);
       });
     }
 
@@ -208,6 +276,24 @@
       p.textContent = ref;
       doc.appendChild(p);
     });
+
+    var aboutBox = document.createElement("div");
+    aboutBox.className = "pdf-about";
+    var aboutLabel = document.createElement("p");
+    aboutLabel.className = "about-label";
+    aboutLabel.textContent = "About Rep0rt";
+    var aboutText = document.createElement("p");
+    aboutText.className = "about-text";
+    aboutText.textContent = "Rep0rt is an open, community-run archive for results that would " +
+      "otherwise go unwritten — not only findings that failed to confirm a hypothesis, but any " +
+      "result that never made it into the record, often simply because it came out " +
+      "statistically nonsignificant. Reports on Rep0rt are not peer-reviewed. They are " +
+      "moderated by the Rep0rt community against a set of content guidelines, and readers " +
+      "should weigh them accordingly. This document reflects the author's own account of " +
+      "their work at the time of submission.";
+    aboutBox.appendChild(aboutLabel);
+    aboutBox.appendChild(aboutText);
+    doc.appendChild(aboutBox);
 
     return doc;
   }
@@ -225,15 +311,16 @@
     // ends up empty. Building it detached and handing it straight to
     // html2pdf avoids that.
     var container = buildPdfDoc();
-    container.style.width = "700px";
+    container.style.width = PDF_WIDTH_PX + "px";
 
     if (window.renderMathInElement) renderMathInElement(container, KATEX_OPTS);
 
     var opt = {
       margin: 25.4,
       filename: "rep0rt-" + report.id + ".pdf",
-      html2canvas: { scale: 2, backgroundColor: "#ffffff" },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+      html2canvas: { scale: 2, backgroundColor: "#ffffff", windowWidth: PDF_WIDTH_PX },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"], avoid: PAGEBREAK_AVOID_SELECTORS }
     };
 
     function reset() {
