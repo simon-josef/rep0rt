@@ -26,6 +26,13 @@
     return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
   }
 
+  // "A" / "A & B" / "A, B & C"
+  function displayAuthors(names) {
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return names[0] + " & " + names[1];
+    return names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
+  }
+
   function cardHtml(r) {
     var tags = r.tags.slice(0, 3).map(function (t) {
       return '<span class="tag"></span>';
@@ -43,7 +50,7 @@
       '<div class="card-tags"></div>';
     el.querySelector("h2").textContent = r.title;
     el.querySelector(".date").textContent = formatDate(r.date);
-    el.querySelector(".author").textContent = r.author;
+    el.querySelector(".author").textContent = displayAuthors(r.authors);
     var tagsWrap = el.querySelector(".card-tags");
     r.tags.slice(0, 3).forEach(function (t) {
       var span = document.createElement("span");
@@ -60,7 +67,7 @@
     var filtered = data.filter(function (r) {
       if (disc && r.discipline !== disc) return false;
       if (!q) return true;
-      var haystack = (r.title + " " + r.author + " " + r.tags.join(" ")).toLowerCase();
+      var haystack = (r.title + " " + r.authors.join(" ") + " " + r.tags.join(" ")).toLowerCase();
       return haystack.indexOf(q) !== -1;
     });
 

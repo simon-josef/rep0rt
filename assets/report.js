@@ -13,14 +13,38 @@
     'stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/>' +
     '<circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></svg>';
 
-  function apaAuthor(name) {
+  function apaAuthorOne(name) {
     var parts = name.trim().split(/\s+/);
     var last = parts.pop();
     return last + ", " + parts.join(" ");
   }
 
+  // APA 7: "Last, F." / "Last, F., & Last2, G." / "Last, F., Last2, G., & Last3, H."
+  function apaAuthors(names) {
+    var formatted = names.map(apaAuthorOne);
+    if (formatted.length === 1) return formatted[0];
+    if (formatted.length === 2) return formatted[0] + ", & " + formatted[1];
+    return formatted.slice(0, -1).join(", ") + ", & " + formatted[formatted.length - 1];
+  }
+
+  // Plain-prose byline: "A" / "A & B" / "A, B & C"
+  function displayAuthors(names) {
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return names[0] + " & " + names[1];
+    return names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
+  }
+
   function formatDateLong(iso) {
     return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  }
+
+  // The brand's zero is meant to stand out (colored, from the wordmark) —
+  // this keeps that consistent anywhere "Rep0rt" appears in running prose
+  // instead of the numeral just reading as a stray, unstyled "0".
+  function rep0rtHtml(text) {
+    var div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML.replace(/Rep0rt/g, 'Rep<span class="zero-inline">0</span>rt');
   }
 
   // Matches the <option> list in submit.html's discipline picker.
@@ -54,7 +78,7 @@
   document.getElementById("r-data-label").textContent = report.dataAvailable ? "Data available" : "No data shared";
 
   document.getElementById("r-title").textContent = report.title;
-  document.getElementById("r-author").textContent = report.author;
+  document.getElementById("r-author").textContent = displayAuthors(report.authors);
   document.getElementById("r-date").textContent = formatDateLong(report.date);
 
   var tagsEl = document.getElementById("r-tags");
@@ -112,7 +136,7 @@
     figuresEl.parentElement.hidden = true;
   }
 
-  if (window.REP0RT_COMMENTS) REP0RT_COMMENTS.init(report.author);
+  if (window.REP0RT_COMMENTS) REP0RT_COMMENTS.init(report.authors[0]);
 
   if (window.renderMathInElement) {
     renderMathInElement(document.getElementById("pdf-content"), KATEX_OPTS);
@@ -151,6 +175,7 @@
       ".pdf-doc .pdf-mast { border-bottom: 0.75pt solid #111111; padding: 6pt 0 8pt; margin: 0 0 4pt; overflow: hidden; }",
       ".pdf-doc .pdf-mast .wordmark { float: left; font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: 17pt; color: #111111; }",
       ".pdf-doc .pdf-mast .wordmark .zero { color: #1F5FA6; }",
+      ".pdf-doc .zero-inline { color: #1F5FA6; font-weight: 700; }",
       ".pdf-doc .pdf-mast .disc { float: right; font-size: 9pt; letter-spacing: 0.03em; color: #444444; padding-top: 3pt; }",
       ".pdf-doc .pdf-tagline { text-align: center; font-size: 8.5pt; font-style: italic; color: #666666; margin: 0 0 22pt; }",
       ".pdf-doc .pdf-title-block { text-align: center; margin: 0 0 18pt; }",
@@ -211,7 +236,7 @@
 
     var authorEl = document.createElement("p");
     authorEl.className = "pdf-author";
-    authorEl.textContent = report.author;
+    authorEl.textContent = displayAuthors(report.authors);
     titleBlock.appendChild(authorEl);
 
     doc.appendChild(titleBlock);
@@ -242,11 +267,9 @@
 
     var howCite = document.createElement("p");
     howCite.className = "pdf-howcite";
-    howCite.innerHTML = "<b>How to cite:</b> ";
-    howCite.appendChild(document.createTextNode(
-      apaAuthor(report.author) + " (" + report.date.slice(0, 4) + "). " +
-      report.title + ". Rep0rt. " + window.location.href
-    ));
+    var citeStr = apaAuthors(report.authors) + " (" + report.date.slice(0, 4) + "). " +
+      report.title + ". Rep0rt. " + window.location.href;
+    howCite.innerHTML = "<b>How to cite:</b> " + rep0rtHtml(citeStr);
     doc.appendChild(howCite);
 
     [
@@ -312,12 +335,12 @@
     aboutBox.className = "pdf-about";
     var aboutLabel = document.createElement("p");
     aboutLabel.className = "about-label";
-    aboutLabel.textContent = "About Rep0rt";
+    aboutLabel.innerHTML = rep0rtHtml("About Rep0rt");
     var aboutText = document.createElement("p");
     aboutText.className = "about-text";
-    aboutText.textContent = "Rep0rt is an open archive for results that would otherwise go " +
+    aboutText.innerHTML = rep0rtHtml("Rep0rt is an open archive for results that would otherwise go " +
       "unwritten. Reports are not peer-reviewed — they are moderated by the Rep0rt community. " +
-      "This document reflects the author's own account of their work.";
+      "This document reflects the author's own account of their work.");
     aboutBox.appendChild(aboutLabel);
     aboutBox.appendChild(aboutText);
     doc.appendChild(aboutBox);

@@ -13,7 +13,10 @@ window.REP0RT_DATA = [
     "id": "psy-001",
     "title": "Growth-mindset framing does not improve retention in an intro statistics course",
     "discipline": "psy",
-    "author": "J. Okafor",
+    "authors": [
+      "J. Okafor",
+      "R. Beaumont"
+    ],
     "date": "2026-03-14",
     "tags": [
       "growth mindset",
@@ -28,7 +31,9 @@ window.REP0RT_DATA = [
     "id": "cogsci-002",
     "title": "Working-memory capacity does not predict garden-path recovery time",
     "discipline": "cogsci",
-    "author": "L. Meunier",
+    "authors": [
+      "L. Meunier"
+    ],
     "date": "2026-01-22",
     "tags": [
       "working memory",
@@ -43,7 +48,11 @@ window.REP0RT_DATA = [
     "id": "neuro-003",
     "title": "tDCS over left DLPFC fails to modulate risk-taking in the Balloon Analogue Risk Task",
     "discipline": "neuro",
-    "author": "R. Ionescu",
+    "authors": [
+      "R. Ionescu",
+      "P. Aldana",
+      "K. Mbeki"
+    ],
     "date": "2025-11-08",
     "tags": [
       "tDCS",
@@ -58,7 +67,9 @@ window.REP0RT_DATA = [
     "id": "physics-004",
     "title": "No detectable deviation from Beer-Lambert linearity in dilute colloidal suspensions up to 5% v/v",
     "discipline": "physics",
-    "author": "A. Kowalczyk",
+    "authors": [
+      "A. Kowalczyk"
+    ],
     "date": "2025-09-30",
     "tags": [
       "optics",
@@ -73,7 +84,9 @@ window.REP0RT_DATA = [
     "id": "chem-005",
     "title": "Copper(I) catalyst shows no rate enhancement over uncatalyzed background below 0°C",
     "discipline": "chem",
-    "author": "S. Haddad",
+    "authors": [
+      "S. Haddad"
+    ],
     "date": "2025-08-17",
     "tags": [
       "click chemistry",
@@ -88,7 +101,10 @@ window.REP0RT_DATA = [
     "id": "bio-006",
     "title": "Dietary resveratrol supplementation does not extend lifespan in outbred Drosophila melanogaster",
     "discipline": "bio",
-    "author": "T. Nakashima",
+    "authors": [
+      "T. Nakashima",
+      "E. Solberg"
+    ],
     "date": "2025-06-02",
     "tags": [
       "resveratrol",
@@ -103,7 +119,9 @@ window.REP0RT_DATA = [
     "id": "cs-007",
     "title": "Attention dropout does not reduce overfitting in small-scale transformer fine-tuning",
     "discipline": "cs",
-    "author": "D. Alvarado",
+    "authors": [
+      "D. Alvarado"
+    ],
     "date": "2026-02-10",
     "tags": [
       "transformers",
@@ -118,7 +136,9 @@ window.REP0RT_DATA = [
     "id": "stat-008",
     "title": "Bootstrap and asymptotic intervals show no coverage difference for skewed counts at n=200",
     "discipline": "stat",
-    "author": "M. Petrov",
+    "authors": [
+      "M. Petrov"
+    ],
     "date": "2025-12-05",
     "tags": [
       "bootstrap",
@@ -133,7 +153,10 @@ window.REP0RT_DATA = [
     "id": "econ-009",
     "title": "Minimum-wage increases in mid-size US counties show no measurable teen-employment effect, 2015-2023",
     "discipline": "econ",
-    "author": "C. Whitfield",
+    "authors": [
+      "C. Whitfield",
+      "N. Osei"
+    ],
     "date": "2025-10-19",
     "tags": [
       "minimum wage",
@@ -148,7 +171,9 @@ window.REP0RT_DATA = [
     "id": "ling-010",
     "title": "Bilingual toddlers show no code-switching cost in naming latency versus monolinguals",
     "discipline": "ling",
-    "author": "F. Adeyemi",
+    "authors": [
+      "F. Adeyemi"
+    ],
     "date": "2025-07-25",
     "tags": [
       "bilingualism",
