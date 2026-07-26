@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rep0rt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="stylesheet" href="assets/rep0rt.css" />
+<style>
+  .back { font-size:13px; color:var(--muted); text-decoration:none; }
+  .back:hover { color:var(--ink); }
+  header.site { justify-content:space-between; }
+  .nav-row { display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+
+  .r-top { margin-top:2.5rem; }
+  .r-badges { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:0.9rem; }
+  .r-badges-left { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .data-badge {
+    display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; box-sizing:border-box;
+    font-size:11.5px; font-weight:500; border-radius:6px; border:0.5px solid var(--line-strong);
+    color:var(--hint); background:transparent;
+  }
+  .data-badge svg { width:12px; height:12px; }
+  .data-badge.available { color:var(--accent-ink); background:var(--accent-bg); border-color:transparent; }
+  .flag-icon-btn {
+    display:inline-flex; align-items:center; justify-content:center; height:22px; width:22px; padding:0;
+    border-radius:6px; border:0.5px solid var(--line-strong); background:transparent; color:var(--hint);
+    cursor:pointer; transition:color .12s, border-color .12s, background .12s;
+  }
+  .flag-icon-btn svg { width:12px; height:12px; }
+  .flag-icon-btn:hover { color:var(--danger); border-color:var(--danger); }
+  #r-title { font-family:"EB Garamond", Georgia, serif; font-weight:500; font-style:italic; font-size:30px; line-height:1.3; margin:0 0 0.9rem; }
+  .r-meta-row { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:14px; color:var(--muted); margin-bottom:1rem; }
+  .r-meta-row .label { color:var(--hint); }
+  .r-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:1.5rem; }
+  .r-tags .tag { font-size:12px; color:var(--accent-ink); background:var(--accent-bg); border-radius:6px; padding:3px 9px; }
+
+  .actions-row { display:flex; gap:10px; margin:1.5rem 0 2rem; padding-bottom:1.5rem; border-bottom:0.5px solid var(--line); }
+
+  .section { margin-bottom:1.75rem; }
+  .section h3 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--hint); margin:0 0 0.6rem; }
+  .section .body { font-size:15.5px; line-height:1.75; color:var(--ink); white-space:pre-wrap; word-wrap:break-word; }
+  .section .body:empty::before { content:"—"; color:var(--hint); }
+
+  .figures { display:grid; gap:1rem; margin-top:0.5rem; }
+  .figure { border:0.5px dashed var(--line-strong); border-radius:var(--radius); padding:1.5rem 1rem; text-align:center; color:var(--muted); background:var(--surface); }
+  .figure .ph { width:100%; height:120px; border-radius:8px; background:var(--paper); border:0.5px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--hint); margin-bottom:0.7rem; }
+  .figure .ph svg { width:28px; height:28px; }
+  .figure .cap { font-size:13px; color:var(--muted); }
+
+  .notfound { text-align:center; padding:4rem 0; }
+  .notfound h1 { font-family:"EB Garamond", Georgia, serif; font-style:italic; font-weight:500; font-size:24px; margin-bottom:0.75rem; }
+  .notfound p { color:var(--muted); font-size:14px; }
+
+  /* Hidden decoy sentences injected by assets/decoy.js — see that file
+     for why display:none (not color-matching) is the correct hide here. */
+  .decoy { display:none; }
+
+  /* Discussion / Q&A */
+  .discussion { margin-top:2.5rem; padding-top:2rem; border-top:0.5px solid var(--line); }
+  .disc-title { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--hint); margin:0 0 1.1rem; }
+
+  .ask-gate {
+    display:flex; align-items:center; gap:12px; padding:0.9rem 1.1rem; margin-bottom:2rem;
+    border:0.5px solid var(--line); border-radius:var(--radius); background:var(--surface);
+  }
+  .ask-gate[hidden] { display:none; }
+  .ask-gate p { flex:1; margin:0; font-size:14px; color:var(--muted); }
+  .avatar-muted { background:var(--paper); color:var(--hint); }
+  .ask-as { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); margin-bottom:0.7rem; }
+  .ask-as .avatar { width:24px; height:24px; }
+  .ask-as .avatar svg { width:13px; height:13px; }
+  .ask-as strong { color:var(--ink); }
+
+  .ask-form { margin-bottom:2rem; }
+  .ask-form textarea {
+    width:100%; background:var(--surface); color:var(--ink);
+    border:0.5px solid var(--line-strong); border-radius:var(--radius);
+    padding:0.65rem 0.8rem; font:inherit; font-size:14px; line-height:1.6;
+    min-height:64px; resize:vertical; outline:none; transition:border-color .12s, box-shadow .12s;
+  }
+  .ask-form textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
+  .ask-row { display:flex; align-items:center; gap:10px; margin-top:8px; justify-content:flex-end; }
+  .ask-row .status { font-size:13px; color:var(--muted); margin-right:auto; }
+  .ask-row .status.err { color:var(--danger); }
+  .ask-row .status.ok { color:var(--accent-ink); }
+
+  .comments { display:flex; flex-direction:column; gap:1.5rem; }
+  .comment { display:flex; gap:12px; }
+  .comment.reply { margin-left:44px; margin-top:1rem; }
+  .avatar {
+    flex:none; width:36px; height:36px; border-radius:50%; background:var(--accent-bg); color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .avatar svg { width:19px; height:19px; }
+  .comment-body { flex:1; min-width:0; }
+  .comment-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:3px; }
+  .comment-name { font-size:14px; font-weight:600; }
+  .comment-name .author-badge {
+    font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--accent-ink); background:var(--accent-bg); padding:1px 6px; border-radius:5px; margin-left:6px;
+  }
+  .comment-date { font-size:12px; color:var(--hint); }
+  .comment-text { font-size:14.5px; line-height:1.65; color:var(--ink); white-space:pre-wrap; word-wrap:break-word; }
+  .comment-replies { margin-top:0; }
+
+  /* Flag dialog */
+  #flag-dialog { border:none; border-radius:14px; padding:0; background:var(--surface); color:var(--ink); max-width:460px; width:calc(100% - 2rem); }
+  #flag-dialog::backdrop { background:rgba(0,0,0,0.45); }
+  #flag-dialog form, #flag-dialog .flag-confirm { padding:1.5rem; }
+  #flag-dialog h3 { font-family:"EB Garamond", Georgia, serif; font-style:italic; font-weight:500; font-size:20px; margin:0 0 0.75rem; }
+  .flag-guidelines { font-size:13px; color:var(--muted); line-height:1.6; margin:0 0 1.25rem; }
+  #flag-dialog fieldset { border:none; padding:0; margin:0 0 1rem; }
+  #flag-dialog legend { font-size:12px; font-weight:600; color:var(--hint); text-transform:uppercase; letter-spacing:0.03em; padding:0; margin-bottom:0.6rem; }
+  .check-row { display:flex; align-items:flex-start; gap:9px; font-size:13.5px; line-height:1.5; margin-bottom:0.6rem; cursor:pointer; }
+  .check-row input { accent-color:var(--accent); width:15px; height:15px; margin-top:2px; flex:none; cursor:pointer; }
+  .detail-label { display:block; font-size:12px; color:var(--hint); margin-bottom:1.25rem; }
+  .detail-label textarea {
+    display:block; width:100%; margin-top:6px; background:var(--paper); color:var(--ink);
+    border:0.5px solid var(--line-strong); border-radius:var(--radius); padding:0.55rem 0.7rem;
+    font:inherit; font-size:13.5px; min-height:60px; resize:vertical; outline:none;
+  }
+  .detail-label textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
+  .flag-actions { display:flex; align-items:center; gap:10px; justify-content:flex-end; }
+  .flag-actions .status { font-size:12.5px; margin-right:auto; }
+  .flag-confirm p { font-size:14px; color:var(--muted); line-height:1.6; margin:0 0 1.25rem; }
+  .flag-confirm { text-align:left; }
+
+  @media (max-width:560px) { #r-title { font-size:24px; } .comment.reply { margin-left:24px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav-row">
+    <header class="site">
+      <a class="mark" href="index.html" style="text-decoration:none;">Rep<span class="z">0</span>rt</a>
+      <span class="meta">share what would otherwise be lost</span>
+    </header>
+    <a class="back" href="index.html">&larr; All reports</a>
+  </div>
+
+  <div id="found-state" hidden>
+    <div class="r-top">
+      <div class="r-badges">
+        <div class="r-badges-left">
+          <span class="disc-badge" id="r-discipline"></span>
+          <span class="data-badge" id="r-data-badge" title="Whether the dataset/code behind this report is available">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
+            <span id="r-data-label"></span>
+          </span>
+        </div>
+        <button type="button" class="flag-icon-btn" id="flag-btn" title="Flag this Rep0rt" aria-label="Flag this Rep0rt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h13l-2.5 4L18 12H5"/></svg>
+        </button>
+      </div>
+      <h1 id="r-title"></h1>
+      <div class="r-meta-row">
+        <span><span class="label">by</span> <span id="r-author"></span></span>
+        <span id="r-date"></span>
+      </div>
+      <div class="r-tags" id="r-tags"></div>
+    </div>
+
+    <div class="actions-row">
+      <button type="button" class="btn primary" id="download-pdf">Download PDF</button>
+    </div>
+
+    <div id="pdf-content">
+      <div class="section">
+        <h3>Abstract</h3>
+        <div class="body" id="r-abstract"></div>
+      </div>
+      <div class="section">
+        <h3>Theory and expectations</h3>
+        <div class="body" id="r-theory"></div>
+      </div>
+      <div class="section">
+        <h3>Hypothesis</h3>
+        <div class="body" id="r-hypothesis"></div>
+      </div>
+      <div class="section">
+        <h3>Results</h3>
+        <div class="body" id="r-results"></div>
+      </div>
+      <div class="section">
+        <h3>Reflections</h3>
+        <div class="body" id="r-reflections"></div>
+      </div>
+      <div class="section">
+        <h3>Literature</h3>
+        <div class="body" id="r-literature"></div>
+      </div>
+      <div class="section">
+        <h3>Figures &amp; Visualizations</h3>
+        <div class="figures" id="r-figures"></div>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <h2 class="disc-title">Questions &amp; responses</h2>
+
+      <div class="ask-gate" id="ask-gate">
+        <div class="avatar avatar-muted">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        </div>
+        <p>Log in to ask a question or respond.</p>
+        <button type="button" class="btn primary" id="login-btn">Log in</button>
+      </div>
+
+      <form class="ask-form" id="ask-form" hidden>
+        <div class="ask-as">
+          <div class="avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+          </div>
+          Posting as <strong>You</strong>
+        </div>
+        <textarea id="ask-text" placeholder="Ask the author a question, or add a comment…" required></textarea>
+        <div class="ask-row">
+          <span class="status" id="ask-status"></span>
+          <button type="submit" class="btn primary">Post</button>
+        </div>
+      </form>
+
+      <div class="comments" id="comments-list"></div>
+    </div>
+  </div>
+
+  <div class="notfound" id="notfound-state" hidden>
+    <h1>Report not found</h1>
+    <p>This Rep0rt doesn't exist, or the link is out of date.</p>
+    <p><a class="back" href="index.html">&larr; Back to all reports</a></p>
+  </div>
+
+  <p class="foot">Every result has the bones of a paper, even the ones that never get published.</p>
+
+</div>
+
+<dialog id="flag-dialog">
+  <form id="flag-form">
+    <h3>Flag this Rep0rt</h3>
+    <p class="flag-guidelines">
+      Flags go to Rep0rt moderators for human review — nothing is taken down automatically.
+      Use this for a genuine integrity or quality problem with the report itself, not to
+      disagree with a null result: a result not confirming the hypothesis is exactly what
+      Rep0rt exists to host.
+    </p>
+    <fieldset>
+      <legend>What's wrong with it? (select all that apply)</legend>
+      <label class="check-row"><input type="checkbox" name="reason" value="ai-text" /> Undisclosed AI-generated text</label>
+      <label class="check-row"><input type="checkbox" name="reason" value="misconduct" /> Violation of scientific practice (fabrication, plagiarism, undisclosed conflicts, missing ethics approval)</label>
+      <label class="check-row"><input type="checkbox" name="reason" value="flaws" /> Considerable methodological flaws</label>
+      <label class="check-row"><input type="checkbox" name="reason" value="analysis-errors" /> Errors in the analysis or notebook</label>
+      <label class="check-row"><input type="checkbox" name="reason" value="suspicious-data" /> Suspicious or implausible data</label>
+      <label class="check-row"><input type="checkbox" name="reason" value="other" /> Something else (describe below)</label>
+    </fieldset>
+    <label class="detail-label">
+      Additional details <span class="note">(optional)</span>
+      <textarea id="flag-detail" placeholder="Anything that would help a moderator look into this."></textarea>
+    </label>
+    <div class="flag-actions">
+      <span class="status err" id="flag-error" hidden>Select at least one reason, or describe the issue.</span>
+      <button type="button" class="btn" id="flag-cancel">Cancel</button>
+      <button type="submit" class="btn primary">Submit flag</button>
+    </div>
+  </form>
+  <div class="flag-confirm" id="flag-confirm" hidden>
+    <h3>Thanks — this Rep0rt has been flagged.</h3>
+    <p>A moderator will review it. Flagged reports stay visible while under review unless a moderator removes them.</p>
+    <button type="button" class="btn primary" id="flag-close">Close</button>
+  </div>
+</dialog>
+
+<script src="assets/codec.js"></script>
+<script src="assets/decoy.js"></script>
+<script src="assets/reports-data.js"></script>
+<script src="assets/comments.js"></script>
+<script src="assets/report.js"></script>
+</body>
+</html>
