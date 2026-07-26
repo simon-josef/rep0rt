@@ -218,12 +218,14 @@
     button.textContent = "Preparing PDF…";
     button.disabled = true;
 
+    // Deliberately left detached from the live document: html2canvas
+    // clones whatever document a source element belongs to, and an
+    // attached-but-offscreen container (position:fixed; left:-9999px)
+    // gets cloned along with that offscreen position, so the capture
+    // ends up empty. Building it detached and handing it straight to
+    // html2pdf avoids that.
     var container = buildPdfDoc();
-    container.style.position = "fixed";
-    container.style.left = "-9999px";
-    container.style.top = "0";
     container.style.width = "700px";
-    document.body.appendChild(container);
 
     if (window.renderMathInElement) renderMathInElement(container, KATEX_OPTS);
 
@@ -234,12 +236,11 @@
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
     };
 
-    function cleanup() {
-      container.remove();
+    function reset() {
       button.textContent = original;
       button.disabled = false;
     }
 
-    html2pdf().set(opt).from(container).save().then(cleanup).catch(cleanup);
+    html2pdf().set(opt).from(container).save().then(reset).catch(reset);
   });
 })();
