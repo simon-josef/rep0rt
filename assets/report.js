@@ -23,6 +23,16 @@
     return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   }
 
+  // Matches the <option> list in submit.html's discipline picker.
+  var DISCIPLINE_NAMES = {
+    psy: "Psychology", cogsci: "Cognitive Science", neuro: "Neuroscience",
+    physics: "Physics", chem: "Chemistry", bio: "Biology", med: "Medicine",
+    cs: "Computer Science", stat: "Statistics", math: "Mathematics",
+    econ: "Economics", soc: "Sociology", ling: "Linguistics", hist: "History",
+    polisci: "Political Science", phil: "Philosophy", anthro: "Anthropology",
+    edu: "Education", env: "Environmental Science", eng: "Engineering", other: "Other"
+  };
+
   var params = new URLSearchParams(window.location.search);
   var id = params.get("id");
   var report = (window.REP0RT_DATA || []).find(function (r) { return r.id === id; });
@@ -125,8 +135,8 @@
   // authoritative for "don't split this element across a page".
   var PDF_WIDTH_PX = 720;
   var PAGEBREAK_AVOID_SELECTORS = [
-    ".pdf-mast", ".pdf-title-block", ".pdf-cite", ".pdf-abstract",
-    "h3", ".fig-block", ".ref-entry", ".pdf-about"
+    ".pdf-mast", ".pdf-title-block", ".pdf-info-row", "h3",
+    ".fig-block", ".ref-entry", ".pdf-about"
   ];
 
   function buildPdfDoc() {
@@ -137,40 +147,59 @@
     style.textContent = [
       ".pdf-doc { font-family: Georgia, 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.5; color: #111111; background: #ffffff; }",
       ".pdf-doc, .pdf-doc * { box-sizing: border-box; overflow-wrap: break-word; word-break: break-word; }",
-      ".pdf-doc .pdf-mast { border-top: 1.5pt solid #111111; border-bottom: 0.75pt solid #111111; padding: 8pt 0; margin: 0 0 30pt; overflow: hidden; }",
+      ".pdf-doc .pdf-accent-bar { background: #1F5FA6; height: 5pt; margin: 0 0 10pt; }",
+      ".pdf-doc .pdf-mast { border-bottom: 0.75pt solid #111111; padding: 6pt 0 8pt; margin: 0 0 4pt; overflow: hidden; }",
       ".pdf-doc .pdf-mast .wordmark { float: left; font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: 17pt; color: #111111; }",
       ".pdf-doc .pdf-mast .wordmark .zero { color: #1F5FA6; }",
-      ".pdf-doc .pdf-mast .disc { float: right; font-size: 9pt; letter-spacing: 0.03em; color: #444444; font-family: Georgia, serif; padding-top: 3pt; }",
-      ".pdf-doc .pdf-title-block { text-align: center; margin: 0 0 20pt; }",
+      ".pdf-doc .pdf-mast .disc { float: right; font-size: 9pt; letter-spacing: 0.03em; color: #444444; padding-top: 3pt; }",
+      ".pdf-doc .pdf-tagline { text-align: center; font-size: 8.5pt; font-style: italic; color: #666666; margin: 0 0 22pt; }",
+      ".pdf-doc .pdf-title-block { text-align: center; margin: 0 0 18pt; }",
       ".pdf-doc .pdf-title { font-size: 16.5pt; font-weight: 700; margin: 0 0 12pt; line-height: 1.35; }",
       ".pdf-doc .pdf-author { font-size: 11.5pt; margin: 0 0 3pt; }",
       ".pdf-doc .pdf-subline { font-size: 9.5pt; color: #444444; margin: 0 0 3pt; }",
-      ".pdf-doc .pdf-tags { font-size: 9pt; font-style: italic; color: #555555; margin: 8pt 0 0; }",
-      ".pdf-doc .pdf-cite { border-top: 0.75pt solid #999999; border-bottom: 0.75pt solid #999999; padding: 8pt 0; margin: 0 0 22pt; }",
-      ".pdf-doc .cite-label { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 4pt; color: #444444; }",
-      ".pdf-doc .cite-text { margin: 0; font-size: 9.5pt; line-height: 1.45; }",
-      ".pdf-doc .pdf-abstract { margin: 0 0 24pt; }",
-      ".pdf-doc .abstract-label { text-align: center; font-size: 10.5pt; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 8pt; }",
-      ".pdf-doc .abstract-text { font-size: 10.5pt; line-height: 1.5; text-align: justify; margin: 0 32pt; }",
-      ".pdf-doc h3 { font-size: 11.5pt; font-weight: 700; margin: 20pt 0 8pt; }",
-      ".pdf-doc h3 .num { margin-right: 6pt; }",
+      ".pdf-doc .pdf-info-row { overflow: hidden; margin: 0 0 16pt; }",
+      ".pdf-doc .pdf-info-col { float: left; width: 48%; border: 0.75pt solid #999999; border-radius: 8pt; background: #f7f7f5; padding: 9pt 11pt; min-height: 120pt; }",
+      ".pdf-doc .pdf-info-col.right { float: right; }",
+      ".pdf-doc .info-heading { font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #1F5FA6; margin: 0 0 7pt; border-bottom: 0.75pt solid #1F5FA6; padding-bottom: 4pt; }",
+      ".pdf-doc .info-line-label { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #555555; margin: 8pt 0 2pt; }",
+      ".pdf-doc .info-line-label:first-of-type { margin-top: 0; }",
+      ".pdf-doc .info-line { font-size: 9pt; line-height: 1.4; margin: 0; }",
+      ".pdf-doc .info-line.data-yes { color: #1F5FA6; font-weight: 700; }",
+      ".pdf-doc .info-line.data-no { color: #777777; }",
+      ".pdf-doc .abstract-text { font-size: 9.5pt; line-height: 1.5; text-align: justify; margin: 0; }",
+      ".pdf-doc .pdf-howcite { font-size: 8.5pt; color: #444444; margin: 0 0 22pt; padding-top: 8pt; border-top: 0.75pt solid #cccccc; }",
+      ".pdf-doc .pdf-howcite b { color: #111111; }",
+      ".pdf-doc h3 { font-size: 11.5pt; font-weight: 700; margin: 20pt 0 8pt; border-bottom: 1pt solid #1F5FA6; padding-bottom: 4pt; }",
       ".pdf-doc .body { font-size: 11pt; line-height: 1.5; white-space: pre-wrap; text-align: justify; }",
       ".pdf-doc .fig-block { margin: 0 0 14pt; }",
       ".pdf-doc .fig-label { font-weight: 700; margin: 12pt 0 2pt; }",
       ".pdf-doc .fig-caption { font-style: italic; margin: 0 0 6pt; }",
-      ".pdf-doc .ph { border: 0.75pt solid #999999; background: #f4f4f2; min-height: 110pt; }",
-      ".pdf-doc .ref-entry { margin: 0 0 10pt; font-size: 10pt; line-height: 1.45; text-align: justify; }",
-      ".pdf-doc .pdf-about { border: 0.75pt solid #999999; background: #f7f7f5; padding: 11pt 13pt; margin: 26pt 0 0; }",
+      ".pdf-doc .ph { border: 0.75pt solid #999999; border-radius: 8pt; background: #f4f4f2; min-height: 110pt; }",
+      ".pdf-doc .ref-columns { overflow: hidden; }",
+      ".pdf-doc .ref-col { float: left; width: 48%; }",
+      ".pdf-doc .ref-col.right { float: right; }",
+      ".pdf-doc .ref-entry { margin: 0 0 10pt; font-size: 9pt; line-height: 1.4; text-align: justify; }",
+      ".pdf-doc .pdf-about { border: 0.75pt solid #999999; border-radius: 8pt; background: #f7f7f5; padding: 11pt 13pt; margin: 26pt 0 0; }",
       ".pdf-doc .about-label { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 5pt; color: #444444; }",
       ".pdf-doc .about-text { margin: 0; font-size: 9pt; line-height: 1.5; color: #222222; }"
     ].join("\n");
     doc.appendChild(style);
 
+    var bar = document.createElement("div");
+    bar.className = "pdf-accent-bar";
+    doc.appendChild(bar);
+
     var mast = document.createElement("div");
     mast.className = "pdf-mast";
     mast.innerHTML = '<span class="wordmark">Rep<span class="zero">0</span>rt</span>' +
-      '<span class="disc">Rep0rt.' + report.discipline + '</span>';
+      '<span class="disc"></span>';
+    mast.querySelector(".disc").textContent = DISCIPLINE_NAMES[report.discipline] || report.discipline;
     doc.appendChild(mast);
+
+    var tagline = document.createElement("p");
+    tagline.className = "pdf-tagline";
+    tagline.textContent = "An open, community-moderated record of results that would otherwise go unwritten";
+    doc.appendChild(tagline);
 
     var titleBlock = document.createElement("div");
     titleBlock.className = "pdf-title-block";
@@ -185,58 +214,49 @@
     authorEl.textContent = report.author;
     titleBlock.appendChild(authorEl);
 
-    var submittedEl = document.createElement("p");
-    submittedEl.className = "pdf-subline";
-    submittedEl.textContent = "Submitted " + formatDateLong(report.date);
-    titleBlock.appendChild(submittedEl);
-
-    var dataEl = document.createElement("p");
-    dataEl.className = "pdf-subline";
-    dataEl.textContent = report.dataAvailable ? "Data and code available" : "No data or code shared";
-    titleBlock.appendChild(dataEl);
-
-    var tagsP = document.createElement("p");
-    tagsP.className = "pdf-tags";
-    tagsP.textContent = "Keywords: " + report.tags.join(", ");
-    titleBlock.appendChild(tagsP);
-
     doc.appendChild(titleBlock);
 
-    var citeBox = document.createElement("div");
-    citeBox.className = "pdf-cite";
-    var citeLabel = document.createElement("p");
-    citeLabel.className = "cite-label";
-    citeLabel.textContent = "Suggested citation";
-    var citeText = document.createElement("p");
-    citeText.className = "cite-text";
-    citeText.textContent = apaAuthor(report.author) + " (" + report.date.slice(0, 4) + "). " +
-      report.title + ". Rep0rt. " + window.location.href;
-    citeBox.appendChild(citeLabel);
-    citeBox.appendChild(citeText);
-    doc.appendChild(citeBox);
+    var infoRow = document.createElement("div");
+    infoRow.className = "pdf-info-row";
 
-    var abstractBlock = document.createElement("div");
-    abstractBlock.className = "pdf-abstract";
-    var abstractLabel = document.createElement("p");
-    abstractLabel.className = "abstract-label";
-    abstractLabel.textContent = "Abstract";
-    var abstractText = document.createElement("p");
-    abstractText.className = "abstract-text";
-    abstractText.textContent = body.abstract || "";
-    abstractBlock.appendChild(abstractLabel);
-    abstractBlock.appendChild(abstractText);
-    doc.appendChild(abstractBlock);
+    var infoCol = document.createElement("div");
+    infoCol.className = "pdf-info-col";
+    infoCol.innerHTML = '<p class="info-heading">Article info</p>' +
+      '<p class="info-line-label">Submitted</p><p class="info-line"></p>' +
+      '<p class="info-line-label">Data and code</p><p class="info-line"></p>' +
+      '<p class="info-line-label">Keywords</p><p class="info-line"></p>';
+    var infoLines = infoCol.querySelectorAll(".info-line");
+    infoLines[0].textContent = formatDateLong(report.date);
+    infoLines[1].textContent = report.dataAvailable ? "Yes — available" : "No — not shared";
+    infoLines[1].classList.add(report.dataAvailable ? "data-yes" : "data-no");
+    infoLines[2].textContent = report.tags.join(", ");
+    infoRow.appendChild(infoCol);
 
-    var sectionNum = 0;
+    var abstractCol = document.createElement("div");
+    abstractCol.className = "pdf-info-col right";
+    abstractCol.innerHTML = '<p class="info-heading">Abstract</p><p class="abstract-text"></p>';
+    abstractCol.querySelector(".abstract-text").textContent = body.abstract || "";
+    infoRow.appendChild(abstractCol);
+
+    doc.appendChild(infoRow);
+
+    var howCite = document.createElement("p");
+    howCite.className = "pdf-howcite";
+    howCite.innerHTML = "<b>How to cite:</b> ";
+    howCite.appendChild(document.createTextNode(
+      apaAuthor(report.author) + " (" + report.date.slice(0, 4) + "). " +
+      report.title + ". Rep0rt. " + window.location.href
+    ));
+    doc.appendChild(howCite);
+
     [
       ["Theory and Expectations", body.theory],
       ["Hypothesis", body.hypothesis],
       ["Results", body.results],
       ["Reflections", body.reflections]
     ].forEach(function (s) {
-      sectionNum++;
       var h = document.createElement("h3");
-      h.innerHTML = '<span class="num">' + sectionNum + '.</span>' + s[0];
+      h.textContent = s[0];
       var p = document.createElement("div");
       p.className = "body";
       p.textContent = s[1] || "";
@@ -245,9 +265,8 @@
     });
 
     if ((body.figures || []).length) {
-      sectionNum++;
       var figH = document.createElement("h3");
-      figH.innerHTML = '<span class="num">' + sectionNum + '.</span>Figures';
+      figH.textContent = "Figures";
       doc.appendChild(figH);
       body.figures.forEach(function (caption, i) {
         var block = document.createElement("div");
@@ -270,12 +289,24 @@
     var refH = document.createElement("h3");
     refH.textContent = "References";
     doc.appendChild(refH);
-    (body.literature || []).forEach(function (ref) {
+
+    var refs = body.literature || [];
+    var refColumns = document.createElement("div");
+    refColumns.className = "ref-columns";
+    var leftCol = document.createElement("div");
+    leftCol.className = "ref-col";
+    var rightCol = document.createElement("div");
+    rightCol.className = "ref-col right";
+    var splitAt = Math.ceil(refs.length / 2);
+    refs.forEach(function (ref, i) {
       var p = document.createElement("p");
       p.className = "ref-entry";
       p.textContent = ref;
-      doc.appendChild(p);
+      (i < splitAt ? leftCol : rightCol).appendChild(p);
     });
+    refColumns.appendChild(leftCol);
+    refColumns.appendChild(rightCol);
+    doc.appendChild(refColumns);
 
     var aboutBox = document.createElement("div");
     aboutBox.className = "pdf-about";
@@ -284,13 +315,9 @@
     aboutLabel.textContent = "About Rep0rt";
     var aboutText = document.createElement("p");
     aboutText.className = "about-text";
-    aboutText.textContent = "Rep0rt is an open, community-run archive for results that would " +
-      "otherwise go unwritten — not only findings that failed to confirm a hypothesis, but any " +
-      "result that never made it into the record, often simply because it came out " +
-      "statistically nonsignificant. Reports on Rep0rt are not peer-reviewed. They are " +
-      "moderated by the Rep0rt community against a set of content guidelines, and readers " +
-      "should weigh them accordingly. This document reflects the author's own account of " +
-      "their work at the time of submission.";
+    aboutText.textContent = "Rep0rt is an open archive for results that would otherwise go " +
+      "unwritten. Reports are not peer-reviewed — they are moderated by the Rep0rt community. " +
+      "This document reflects the author's own account of their work.";
     aboutBox.appendChild(aboutLabel);
     aboutBox.appendChild(aboutText);
     doc.appendChild(aboutBox);
