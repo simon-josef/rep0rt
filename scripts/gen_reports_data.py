@@ -45,9 +45,21 @@ REPORTS = [
                     "10-minute video delivered once may be too weak a dose to affect behavior "
                     "over eight weeks; classroom-embedded, repeated framing might behave "
                     "differently, and this design cannot rule that out.",
-        literature="Yeager & Dweck (2019) on mindset intervention scaling; Sisk et al. (2018) "
-                   "meta-analysis showing small and heterogeneous mindset effects; Bahnik & "
-                   "Vranka (2017) failed classroom replication.",
+        literature=[
+            "Yeager, D. S., Hanselman, P., Walton, G. M., Murray, J. S., Crosnoe, R., Muller, "
+            "C., Tipton, E., Schneider, B., Hulleman, C. S., Hinojosa, C. P., Paunesku, D., "
+            "Romero, C., Flint, K., Roberts, A., Trott, J., Iachan, R., Buontempo, J., Man "
+            "Yang, S., Carvalho, C. M., … Dweck, C. S. (2019). A national experiment "
+            "reveals where a growth mindset improves achievement. Nature, 573(7774), 364–369. "
+            "https://doi.org/10.1038/s41586-019-1466-y",
+            "Sisk, V. F., Burgoyne, A. P., Sun, J., Butler, J. L., & Macnamara, B. N. (2018). "
+            "To what extent and under which circumstances are growth mind-sets important to "
+            "academic achievement? Two meta-analyses. Psychological Science, 29(4), 549–571. "
+            "https://doi.org/10.1177/0956797617739704",
+            "Bahník, Š., & Vranka, M. A. (2017). Growth mindset is not associated with "
+            "scholastic aptitude in a large sample of university applicants. Personality and "
+            "Individual Differences, 117, 139–143. https://doi.org/10.1016/j.paid.2017.05.046",
+        ],
         figures=["Distribution of delayed retention scores by condition (violin plot).",
                  "Mindset belief shift, pre- vs. post-intervention, by condition."],
     ),
@@ -80,9 +92,17 @@ REPORTS = [
                     "tasks and online reanalysis simply draw on different resources, or that "
                     "the relationship only appears under dual-task load, which this design "
                     "did not impose.",
-        literature="Just & Carpenter (1992) capacity theory; Caplan & Waters (1999) critique "
-                   "of resource-based sentence processing; Van Dyke & McElree (2011) on "
-                   "interference vs. capacity accounts.",
+        literature=[
+            "Just, M. A., & Carpenter, P. A. (1992). A capacity theory of comprehension: "
+            "Individual differences in working memory. Psychological Review, 99(1), 122–149. "
+            "https://doi.org/10.1037/0033-295X.99.1.122",
+            "Caplan, D., & Waters, G. S. (1999). Verbal working memory and sentence "
+            "comprehension. Behavioral and Brain Sciences, 22(1), 77–94. "
+            "https://doi.org/10.1017/S0140525X99001788",
+            "Van Dyke, J. A., & McElree, B. (2011). Cue-dependent interference in "
+            "comprehension. Journal of Memory and Language, 65(3), 247–263. "
+            "https://doi.org/10.1016/j.jml.2011.05.002",
+        ],
         figures=["Scatterplot of complex-span score vs. regression-path duration."],
     ),
     dict(
@@ -112,9 +132,21 @@ REPORTS = [
                     "unlikely to be a dosing artifact alone, though we cannot exclude it. The "
                     "null is consistent with a growing literature questioning the reliability "
                     "of single-session prefrontal tDCS effects on complex decision tasks.",
-        literature="Fecteau et al. (2007) original DLPFC-BART tDCS report; Medeiros et al. "
-                   "(2012) review of inconsistent tDCS decision-making effects; Horvath et al. "
-                   "(2015) meta-analysis questioning single-session tDCS efficacy.",
+        literature=[
+            "Fecteau, S., Pascual-Leone, A., Zald, D. H., Liguori, P., Théoret, H., Boggio, "
+            "P. S., & Fregni, F. (2007). Activation of prefrontal cortex by transcranial "
+            "direct current stimulation reduces appetite for risk during ambiguous decision "
+            "making. Journal of Neuroscience, 27(23), 6212–6218. "
+            "https://doi.org/10.1523/JNEUROSCI.0314-07.2007",
+            "Medeiros, L. F., de Souza, I. C. C., Vidor, L. P., de Souza, A., Deitos, A., "
+            "Volz, M. S., Fregni, F., Caumo, W., & Torres, I. L. S. (2012). Neurobiological "
+            "effects of transcranial direct current stimulation: A review. Frontiers in "
+            "Psychiatry, 3, 110. https://doi.org/10.3389/fpsyt.2012.00110",
+            "Horvath, J. C., Forte, J. D., & Carter, O. (2015). Quantitative review finds no "
+            "evidence of cognitive effects in healthy populations from single-session "
+            "transcranial direct current stimulation (tDCS). Brain Stimulation, 8(3), "
+            "535–550. https://doi.org/10.1016/j.brs.2015.01.400",
+        ],
         figures=["Adjusted average pumps by stimulation condition (box plot).",
                  "Electrode montage and current density diagram."],
     ),
@@ -145,9 +177,15 @@ REPORTS = [
                     "scattering stays negligible at these concentrations; longer path lengths "
                     "or larger particle sizes might reveal the predicted deviation. This bounds, "
                     "rather than closes, the question for this particle size and geometry.",
-        literature="Bohren & Huffman (1983) scattering theory; Mie (1908) original scattering "
-                   "solution; Berne & Pecora (2000) dynamic light scattering in concentrated "
-                   "suspensions.",
+        literature=[
+            "Bohren, C. F., & Huffman, D. R. (1983). Absorption and scattering of light by "
+            "small particles. Wiley.",
+            "Mie, G. (1908). Beiträge zur Optik trüber Medien, speziell kolloidaler "
+            "Metallösungen. Annalen der Physik, 330(3), 377–445. "
+            "https://doi.org/10.1002/andp.19083300302",
+            "Berne, B. J., & Pecora, R. (2000). Dynamic light scattering: With applications "
+            "to chemistry, biology, and physics. Dover Publications.",
+        ],
         figures=["Absorbance vs. concentration with linear fit and residuals."],
     ),
     dict(
@@ -178,9 +216,20 @@ REPORTS = [
                     "temperature rather than a change in intrinsic mechanism, but we did not "
                     "directly image aggregate formation, so that remains an inference rather "
                     "than a demonstrated cause.",
-        literature="Rostovtsev et al. (2002) original CuAAC report; Himo et al. (2005) "
-                   "mechanistic DFT study; Worrell et al. (2013) on catalytically active "
-                   "copper species.",
+        literature=[
+            "Rostovtsev, V. V., Green, L. G., Fokin, V. V., & Sharpless, K. B. (2002). A "
+            "stepwise Huisgen cycloaddition process: Copper(I)-catalyzed regioselective "
+            "ligation of azides and terminal alkynes. Angewandte Chemie International "
+            "Edition, 41(14), 2596–2599. "
+            "https://doi.org/10.1002/1521-3773(20020715)41:14<2596::AID-ANIE2596>3.0.CO;2-4",
+            "Himo, F., Lovell, T., Hilgraf, R., Rostovtsev, V. V., Noodleman, L., Sharpless, "
+            "K. B., & Fokin, V. V. (2005). Copper(I)-catalyzed synthesis of azoles. DFT "
+            "study predicts unprecedented reactivity and intermediates. Journal of the "
+            "American Chemical Society, 127(1), 210–216. https://doi.org/10.1021/ja0471525",
+            "Worrell, B. T., Malik, J. A., & Fokin, V. V. (2013). Direct evidence of a "
+            "dinuclear copper intermediate in Cu(I)-catalyzed azide-alkyne cycloadditions. "
+            "Science, 340(6131), 457–460. https://doi.org/10.1126/science.1229506",
+        ],
         figures=["Arrhenius plot, catalyzed vs. uncatalyzed rate constants."],
     ),
     dict(
@@ -209,9 +258,19 @@ REPORTS = [
                     "background or on caloric-restriction conditions we did not impose here; "
                     "our standard, non-restricted medium may simply not be the context where "
                     "resveratrol's reported mechanism matters.",
-        literature="Wood et al. (2004) original Drosophila resveratrol report; Bass et al. "
-                   "(2007) failure to replicate under standard diet; Baur & Sinclair (2006) "
-                   "sirtuin-activator review.",
+        literature=[
+            "Wood, J. G., Rogina, B., Lavu, S., Howitz, K., Helfand, S. L., Tatar, M., & "
+            "Sinclair, D. (2004). Sirtuin activators mimic caloric restriction and delay "
+            "ageing in metazoans. Nature, 430(7000), 686–689. "
+            "https://doi.org/10.1038/nature02789",
+            "Bass, T. M., Weinkove, D., Houthoofd, K., Gems, D., & Partridge, L. (2007). "
+            "Effects of resveratrol on lifespan in Drosophila melanogaster and "
+            "Caenorhabditis elegans. Mechanisms of Ageing and Development, 128(10), "
+            "546–552. https://doi.org/10.1016/j.mad.2007.07.007",
+            "Baur, J. A., & Sinclair, D. A. (2006). Therapeutic potential of resveratrol: "
+            "The in vivo evidence. Nature Reviews Drug Discovery, 5(6), 493–506. "
+            "https://doi.org/10.1038/nrd2060",
+        ],
         figures=["Kaplan-Meier survival curves by resveratrol dose."],
     ),
     dict(
@@ -241,9 +300,16 @@ REPORTS = [
                     "stopping may already be doing most of the regularizing work, leaving "
                     "attention dropout with little left to contribute; the picture could "
                     "differ at larger model or smaller data scale.",
-        literature="Srivastava et al. (2014) original dropout paper; Fan et al. (2019) "
-                   "structured dropout for transformers; Mosbach et al. (2021) on "
-                   "fine-tuning instability at small scale.",
+        literature=[
+            "Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. "
+            "(2014). Dropout: A simple way to prevent neural networks from overfitting. "
+            "Journal of Machine Learning Research, 15(1), 1929–1958.",
+            "Fan, A., Grave, E., & Joulin, A. (2019). Reducing transformer depth on demand "
+            "with structured dropout. arXiv. https://doi.org/10.48550/arXiv.1909.11556",
+            "Mosbach, M., Andriushchenko, M., & Klakow, D. (2021). On the stability of "
+            "fine-tuning BERT: Misconceptions, explanations, and strong baselines. arXiv. "
+            "https://doi.org/10.48550/arXiv.2006.04884",
+        ],
         figures=["Validation loss vs. attention dropout rate.",
                  "Train/validation loss curves for $p_{drop}=0$ and $p_{drop}=0.4$."],
     ),
@@ -275,9 +341,14 @@ REPORTS = [
                     "this level of skew that the bootstrap's extra flexibility isn't needed; "
                     "more extreme skew or smaller $n$ could plausibly separate the two methods, "
                     "and we did not sweep those settings here.",
-        literature="Efron & Tibshirani (1993) bootstrap methods text; DiCiccio & Efron (1996) "
-                   "on BCa intervals; Wilcox (2012) on robust interval estimation for skewed "
-                   "data.",
+        literature=[
+            "Efron, B., & Tibshirani, R. J. (1993). An introduction to the bootstrap. "
+            "Chapman & Hall.",
+            "DiCiccio, T. J., & Efron, B. (1996). Bootstrap confidence intervals. "
+            "Statistical Science, 11(3), 189–228. https://doi.org/10.1214/ss/1032280214",
+            "Wilcox, R. R. (2012). Introduction to robust estimation and hypothesis testing "
+            "(3rd ed.). Academic Press.",
+        ],
         figures=["Empirical coverage by method across simulation replicates."],
     ),
     dict(
@@ -306,9 +377,15 @@ REPORTS = [
                     "bindingness (wages were often already near the new floor), which may "
                     "explain the null; larger, more binding increases in high cost-of-living "
                     "areas are a distinct empirical question this design doesn't speak to.",
-        literature="Card & Krueger (1994) New Jersey fast-food study; Neumark & Wascher (2008) "
-                   "review favoring disemployment effects; Cengiz et al. (2019) bunching-based "
-                   "estimator finding minimal employment effects.",
+        literature=[
+            "Card, D., & Krueger, A. B. (1994). Minimum wages and employment: A case study "
+            "of the fast-food industry in New Jersey and Pennsylvania. American Economic "
+            "Review, 84(4), 772–793.",
+            "Neumark, D., & Wascher, W. L. (2008). Minimum wages. MIT Press.",
+            "Cengiz, D., Dube, A., Lindner, A., & Zipperer, B. (2019). The effect of minimum "
+            "wages on low-wage jobs. Quarterly Journal of Economics, 134(3), 1405–1454. "
+            "https://doi.org/10.1093/qje/qjz014",
+        ],
         figures=["Event-study coefficients relative to minimum-wage increase date."],
     ),
     dict(
@@ -340,9 +417,17 @@ REPORTS = [
                     "processes that are simply not yet online at 30 months, rather than the "
                     "absence of any language-competition process at all; older toddlers or a "
                     "more demanding switching design might reveal a cost this study could not.",
-        literature="Meuter & Allport (1999) adult language-switching costs; Byers-Heinlein & "
-                   "Werker (2013) on bilingual toddler language differentiation; Poulin-Dubois "
-                   "et al. (2011) on bilingual executive-function advantages debate.",
+        literature=[
+            "Meuter, R. F. I., & Allport, A. (1999). Bilingual language switching in naming: "
+            "Asymmetrical costs of language selection. Journal of Memory and Language, "
+            "40(1), 25–40. https://doi.org/10.1006/jmla.1998.2602",
+            "Werker, J. F., & Byers-Heinlein, K. (2008). Bilingualism in infancy: First steps "
+            "in perception and comprehension. Trends in Cognitive Sciences, 12(4), 144–151. "
+            "https://doi.org/10.1016/j.tics.2008.01.008",
+            "Poulin-Dubois, D., Blaye, A., Coutya, J., & Bialystok, E. (2011). The effects of "
+            "bilingualism on toddlers' executive functioning. Journal of Experimental Child "
+            "Psychology, 108(3), 567–579. https://doi.org/10.1016/j.jecp.2010.10.009",
+        ],
         figures=["Mean naming latency by trial type and group."],
     ),
 ]
