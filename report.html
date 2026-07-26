@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet" href="assets/rep0rt.css" />
 <style>
   .back { font-size:13px; color:var(--muted); text-decoration:none; }
@@ -141,62 +142,6 @@
   .flag-confirm { text-align:left; }
 
   @media (max-width:560px) { #r-title { font-size:24px; } .comment.reply { margin-left:24px; } }
-
-  /* Printable version of the report — built once into #print-doc by
-     report.js, invisible on screen, and this is the only thing that
-     survives when the reader hits "Download PDF" (which just calls
-     window.print(), so they choose "Save as PDF" from their browser's
-     own print dialog). This uses the browser's real, correct print
-     layout engine instead of rasterizing HTML through a library —
-     genuinely reliable pagination/margins/text instead of another
-     round of html2canvas failure modes. */
-  @media screen { #print-doc { display:none; } }
-  @media print {
-    @page { margin: 1in; }
-    body * { visibility:hidden; }
-    #print-doc, #print-doc * { visibility:visible; }
-    #print-doc { position:absolute; top:0; left:0; width:100%; }
-
-    #print-doc { font-family:Georgia,"Times New Roman",Times,serif; font-size:11pt; line-height:1.5; color:#111111; }
-    #print-doc, #print-doc * { box-sizing:border-box; overflow-wrap:break-word; word-break:break-word; }
-    #print-doc .pdf-accent-bar { background:#1F5FA6; height:5pt; margin:0 0 10pt; }
-    #print-doc .pdf-mast { border-bottom:0.75pt solid #111111; padding:6pt 0 8pt; margin:0 0 4pt; overflow:hidden; }
-    #print-doc .pdf-mast .wordmark { float:left; font-family:"EB Garamond",Georgia,serif; font-style:italic; font-weight:500; font-size:17pt; color:#111111; }
-    #print-doc .pdf-mast .wordmark .zero { color:#1F5FA6; }
-    #print-doc .zero-inline { color:#1F5FA6; font-weight:700; }
-    #print-doc .pdf-mast .disc { float:right; font-size:9pt; letter-spacing:0.03em; color:#444444; padding-top:3pt; }
-    #print-doc .pdf-tagline { text-align:center; font-size:8.5pt; font-style:italic; color:#666666; margin:0 0 22pt; }
-    #print-doc .pdf-title-block { text-align:center; margin:0 0 18pt; }
-    #print-doc .pdf-title { font-size:16.5pt; font-weight:700; margin:0 0 12pt; line-height:1.35; }
-    #print-doc .pdf-author { font-size:11.5pt; margin:0 0 6pt; }
-    #print-doc .pdf-author sup, #print-doc .pdf-affil sup { font-size:0.7em; }
-    #print-doc .pdf-affil { font-size:8.5pt; color:#555555; line-height:1.6; margin:0 0 4pt; }
-    #print-doc .pdf-info-row { overflow:hidden; margin:0 0 16pt; }
-    #print-doc .pdf-info-col { float:left; width:48%; border:0.75pt solid #999999; border-radius:8pt; background:#f7f7f5; padding:9pt 11pt; min-height:120pt; }
-    #print-doc .pdf-info-col.right { float:right; }
-    #print-doc .info-heading { font-size:8.5pt; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#1F5FA6; margin:0 0 7pt; border-bottom:0.75pt solid #1F5FA6; padding-bottom:4pt; }
-    #print-doc .info-line-label { font-size:8pt; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#555555; margin:8pt 0 2pt; }
-    #print-doc .info-line-label:first-of-type { margin-top:0; }
-    #print-doc .info-line { font-size:9pt; line-height:1.4; margin:0; }
-    #print-doc .info-line.data-yes { color:#1F5FA6; font-weight:700; }
-    #print-doc .info-line.data-no { color:#777777; }
-    #print-doc .abstract-text { font-size:9.5pt; line-height:1.5; text-align:justify; margin:0; }
-    #print-doc .pdf-howcite { font-size:8.5pt; color:#444444; margin:0 0 22pt; padding-top:8pt; border-top:0.75pt solid #cccccc; }
-    #print-doc .pdf-howcite b { color:#111111; }
-    #print-doc h3 { font-size:11.5pt; font-weight:700; margin:20pt 0 8pt; border-bottom:1pt solid #1F5FA6; padding-bottom:4pt; break-after:avoid; }
-    #print-doc .body { font-size:11pt; line-height:1.5; white-space:pre-wrap; text-align:justify; }
-    #print-doc .fig-block { margin:0 0 14pt; break-inside:avoid; }
-    #print-doc .fig-label { font-weight:700; margin:12pt 0 2pt; }
-    #print-doc .fig-caption { font-style:italic; margin:0 0 6pt; }
-    #print-doc .ph { border:0.75pt solid #999999; border-radius:8pt; background:#f4f4f2; min-height:110pt; }
-    #print-doc .ref-columns { overflow:hidden; }
-    #print-doc .ref-col { float:left; width:48%; }
-    #print-doc .ref-col.right { float:right; }
-    #print-doc .ref-entry { margin:0 0 10pt; font-size:9pt; line-height:1.4; text-align:justify; break-inside:avoid; }
-    #print-doc .pdf-about { border:0.75pt solid #999999; border-radius:8pt; background:#f7f7f5; padding:11pt 13pt; margin:26pt 0 0; break-inside:avoid; }
-    #print-doc .about-label { font-size:7.5pt; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 5pt; color:#444444; }
-    #print-doc .about-text { margin:0; font-size:9pt; line-height:1.5; color:#222222; }
-  }
 </style>
 </head>
 <body>
@@ -234,7 +179,7 @@
     </div>
 
     <div class="actions-row">
-      <button type="button" class="btn primary" id="download-pdf" title="Opens your browser's print dialog — choose &quot;Save as PDF&quot;">Download PDF</button>
+      <button type="button" class="btn primary" id="download-pdf">Download PDF</button>
     </div>
 
     <div id="pdf-content">
@@ -296,8 +241,6 @@
       <div class="comments" id="comments-list"></div>
     </div>
   </div>
-
-  <div id="print-doc" aria-hidden="true"></div>
 
   <div class="notfound" id="notfound-state" hidden>
     <h1>Report not found</h1>

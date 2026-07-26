@@ -394,7 +394,7 @@ REPORTS = [
         abstract="Using a difference-in-differences design across 46 mid-size US counties that "
                  "raised local minimum wages between 2015 and 2023, matched to demographically "
                  "similar counties that did not, we find no statistically significant effect "
-                 "on teen (16-19) employment-to-population ratios ($\\hat{\\beta}=-0.004$, "
+                 "on teen (16-19) employment-to-population ratios ($\\beta=-0.004$, "
                  "SE $=0.006$).",
         theory="Standard competitive labor-market models predict that binding minimum-wage "
                "increases reduce employment among low-wage, low-experience workers, with teens "
@@ -402,7 +402,7 @@ REPORTS = [
         hypothesis="Counties that raised minimum wages will show a relative decline in teen "
                    "employment-to-population ratio compared to matched control counties.",
         results="The estimated treatment effect was small and not statistically distinguishable "
-                "from zero ($\\hat{\\beta}=-0.004$, SE $=0.006$, $p=0.51$), and event-study "
+                "from zero ($\\beta=-0.004$, SE $=0.006$, $p=0.51$), and event-study "
                 "plots showed no pre-trend divergence and no visible break at the policy date. "
                 "Results were stable across several control-group matching specifications.",
         reflections="Mid-size counties in this sample had relatively low minimum-wage "

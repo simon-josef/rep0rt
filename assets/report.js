@@ -71,15 +71,6 @@
     return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   }
 
-  // The brand's zero is meant to stand out (colored, from the wordmark) —
-  // this keeps that consistent anywhere "Rep0rt" appears in running prose
-  // instead of the numeral just reading as a stray, unstyled "0".
-  function rep0rtHtml(text) {
-    var div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML.replace(/Rep0rt/g, 'Rep<span class="zero-inline">0</span>rt');
-  }
-
   // Matches the <option> list in submit.html's discipline picker.
   var DISCIPLINE_NAMES = {
     psy: "Psychology", cogsci: "Cognitive Science", neuro: "Neuroscience",
@@ -188,175 +179,326 @@
     renderMathInElement(document.getElementById("pdf-content"), KATEX_OPTS);
   }
 
-  // --- Printable version -----------------------------------------------
-  // Built once into #print-doc (styling lives in report.html's
-  // @media print block). "Download PDF" just calls window.print() so the
-  // reader saves it via their browser's own print dialog — that uses the
-  // browser's real layout/pagination engine instead of rasterizing HTML
-  // through html2canvas, which is what caused every previous rendering
-  // bug (blank pages, clipped text, corrupted margins). No third-party
-  // dependency, no WASM, nothing left to break here.
-  function buildPdfDoc() {
-    var doc = document.createElement("div");
+  // --- PDF export --------------------------------------------------------
+  // Drawn directly with jsPDF's own vector text/shape primitives — no HTML,
+  // no CSS, no html2canvas. Every bug this session (blank pages, clipped
+  // URLs, corrupted margins) came from html2canvas re-implementing layout
+  // to rasterize HTML; drawing text/boxes at coordinates I compute myself
+  // has no such layer to fail. Auto-downloads via doc.save(), same as
+  // before, no print dialog involved.
+  var PAGE_W = 595.28, PAGE_H = 841.89, MARGIN = 72;
+  var CONTENT_W = PAGE_W - MARGIN * 2;
+  var COL_GAP = 16;
+  var COL_W = (CONTENT_W - COL_GAP) / 2;
+  var INK = [17, 17, 17], MUTED = [85, 85, 85], HINT = [119, 119, 119];
+  var ACCENT = [31, 95, 166], LINE_GRAY = [153, 153, 153], BOX_BG = [247, 247, 245], PH_BG = [244, 244, 242];
 
-    var bar = document.createElement("div");
-    bar.className = "pdf-accent-bar";
-    doc.appendChild(bar);
+  // Only ¹²³ have real glyphs in jsPDF's base WinAnsi-encoded fonts; other
+  // unicode super/subscript digits (⁴⁻⁹, all of ₀-₉) don't and would
+  // render as blank boxes, so anything outside that safe set falls back
+  // to plain "^x" / "_x" notation instead of risking missing glyphs.
+  var SAFE_SUP = { "1": "¹", "2": "²", "3": "³" };
 
-    var mast = document.createElement("div");
-    mast.className = "pdf-mast";
-    mast.innerHTML = '<span class="wordmark">Rep<span class="zero">0</span>rt</span>' +
-      '<span class="disc"></span>';
-    mast.querySelector(".disc").textContent = DISCIPLINE_NAMES[report.discipline] || report.discipline;
-    doc.appendChild(mast);
+  var MATH_SYMBOLS = {
+    "\\times": "×", "\\approx": "≈", "\\pm": "±", "\\leq": "≤",
+    "\\geq": "≥", "\\neq": "≠", "\\cdot": "·", "\\infty": "∞",
+    "\\rightarrow": "→", "\\sim": "~", "\\%": "%", "\\&": "&"
+  };
+  var MATH_GREEK = {
+    alpha: "α", beta: "β", gamma: "γ", delta: "δ", epsilon: "ε",
+    theta: "θ", lambda: "λ", mu: "μ", pi: "π", sigma: "σ",
+    tau: "τ", phi: "φ", chi: "χ", psi: "ψ", omega: "ω",
+    Delta: "Δ", Sigma: "Σ", Omega: "Ω", Gamma: "Γ", Lambda: "Λ",
+    Pi: "Π", Phi: "Φ", Psi: "Ψ", Theta: "Θ"
+  };
 
-    var tagline = document.createElement("p");
-    tagline.className = "pdf-tagline";
-    tagline.textContent = "An open, community-moderated record of results that would otherwise go unwritten";
-    doc.appendChild(tagline);
+  function superscriptify(inner) { return SAFE_SUP[inner] || ("^" + inner); }
+  function subscriptify(inner) { return "_" + inner; }
 
-    var titleBlock = document.createElement("div");
-    titleBlock.className = "pdf-title-block";
+  // Converts the LaTeX snippets in report bodies ($p = 0.61$, $10^3$, ...)
+  // to a clean plain-text/unicode approximation, since jsPDF draws literal
+  // vector text, not typeset math. Simple exponents render as real unicode
+  // superscripts (10³); anything else degrades to readable "^x" / "_x"
+  // notation rather than guessing at a rendering that might not exist.
+  function texToPlain(str) {
+    return String(str || "").replace(
+      /\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\$([^$]+?)\$|\\\(([\s\S]+?)\\\)/g,
+      function (_, a, b, c, d) {
+        var s = a || b || c || d;
+        Object.keys(MATH_SYMBOLS).forEach(function (k) { s = s.split(k).join(MATH_SYMBOLS[k]); });
+        s = s.replace(/\\([A-Za-z]+)/g, function (_, name) { return MATH_GREEK[name] || name; });
+        s = s.replace(/_\{([^}]*)\}/g, function (_, inner) { return subscriptify(inner); });
+        s = s.replace(/_([A-Za-z0-9])/g, function (_, ch) { return subscriptify(ch); });
+        s = s.replace(/\^\{([^}]*)\}/g, function (_, inner) { return superscriptify(inner); });
+        s = s.replace(/\^([A-Za-z0-9])/g, function (_, ch) { return superscriptify(ch); });
+        return s.replace(/\{|\}/g, "");
+      }
+    );
+  }
 
-    var titleEl = document.createElement("h1");
-    titleEl.className = "pdf-title";
-    titleEl.textContent = report.title;
-    titleBlock.appendChild(titleEl);
+  function makeWriter(doc) {
+    return {
+      doc: doc,
+      y: MARGIN,
+      ensure: function (h) {
+        if (this.y + h > PAGE_H - MARGIN) { this.doc.addPage(); this.y = MARGIN; }
+      },
+      rule: function (color, weight) {
+        this.doc.setDrawColor.apply(this.doc, color);
+        this.doc.setLineWidth(weight);
+        this.doc.line(MARGIN, this.y, PAGE_W - MARGIN, this.y);
+      },
+      // Wraps + draws a paragraph, paginating mid-paragraph if needed.
+      paragraph: function (text, opts) {
+        opts = opts || {};
+        var size = opts.size || 11, style = opts.style || "normal";
+        var color = opts.color || INK, align = opts.align || "left";
+        var width = opts.width || CONTENT_W, x = opts.x != null ? opts.x : MARGIN;
+        var lineHeight = size * (opts.leading || 1.45);
+        this.doc.setFont("times", style);
+        this.doc.setFontSize(size);
+        var lines = text ? this.doc.splitTextToSize(texToPlain(text), width) : [];
+        var self = this;
+        lines.forEach(function (line) {
+          self.ensure(lineHeight);
+          self.doc.setFont("times", style);
+          self.doc.setFontSize(size);
+          self.doc.setTextColor.apply(self.doc, color);
+          self.doc.text(line, align === "center" ? x + width / 2 : x, self.y, { align: align });
+          self.y += lineHeight;
+        });
+        return lines.length * lineHeight;
+      },
+      heading: function (text) {
+        this.ensure(28);
+        this.y += 16;
+        this.doc.setFont("times", "bold");
+        this.doc.setFontSize(11.5);
+        this.doc.setTextColor.apply(this.doc, INK);
+        this.doc.text(text, MARGIN, this.y);
+        this.y += 5;
+        this.rule(ACCENT, 1);
+        this.y += 12;
+      }
+    };
+  }
 
-    var pdfAffil = buildAffiliations(report.authors);
+  function drawWordmark(w, x, y, size) {
+    var doc = w.doc;
+    doc.setFont("times", "bolditalic");
+    doc.setFontSize(size);
+    doc.setTextColor.apply(doc, INK);
+    doc.text("Rep", x, y);
+    var wRep = doc.getTextWidth("Rep");
+    doc.setTextColor.apply(doc, ACCENT);
+    doc.text("0", x + wRep, y);
+    var w0 = doc.getTextWidth("0");
+    doc.setTextColor.apply(doc, INK);
+    doc.text("rt", x + wRep + w0, y);
+  }
 
-    var authorEl = document.createElement("p");
-    authorEl.className = "pdf-author";
-    authorEl.innerHTML = authorsWithSuperscripts(report.authors, pdfAffil.indexOf);
-    titleBlock.appendChild(authorEl);
+  function generatePdf(report, body) {
+    var doc = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
+    var w = makeWriter(doc);
 
-    var affilEl = document.createElement("p");
-    affilEl.className = "pdf-affil";
-    var pdfCorresponding = report.authors.filter(function (a) { return a.corresponding; })[0];
-    var pdfAffilHtml = pdfAffil.list.map(function (name, i) {
-      return "<sup>" + (i + 1) + "</sup> " + escapeHtml(name) + "<br>";
-    }).join("");
-    if (pdfCorresponding) {
-      pdfAffilHtml += "<sup>" + CORRESPONDING_MARK + "</sup> Corresponding author: " +
-        escapeHtml(pdfCorresponding.name) + " (" + escapeHtml(pdfCorresponding.email) + ")";
+    // Masthead: accent bar, wordmark + discipline, rule.
+    doc.setFillColor.apply(doc, ACCENT);
+    doc.rect(MARGIN, w.y, CONTENT_W, 4, "F");
+    w.y += 22;
+    drawWordmark(w, MARGIN, w.y, 17);
+    doc.setFont("times", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor.apply(doc, MUTED);
+    doc.text(DISCIPLINE_NAMES[report.discipline] || report.discipline, PAGE_W - MARGIN, w.y, { align: "right" });
+    w.y += 8;
+    w.rule(INK, 0.75);
+    w.y += 24;
+
+    w.paragraph("An open, community-moderated record of results that would otherwise go unwritten",
+      { size: 8.5, style: "italic", color: MUTED, align: "center" });
+    w.y += 8;
+
+    // Title / author block, centered.
+    w.paragraph(report.title, { size: 16.5, style: "bold", align: "center", leading: 1.3 });
+    w.y += 4;
+
+    var affil = buildAffiliations(report.authors);
+    var authorLine = report.authors.map(function (a) {
+      var num = affil.indexOf[a.affiliation];
+      return a.name + (SAFE_SUP[String(num)] || num) + (a.corresponding ? ",*" : "");
+    }).join(", ");
+    w.paragraph(authorLine, { size: 11.5, align: "center" });
+    w.y += 2;
+
+    var corresponding = report.authors.filter(function (a) { return a.corresponding; })[0];
+    affil.list.forEach(function (name, i) {
+      w.paragraph((SAFE_SUP[String(i + 1)] || (i + 1)) + " " + name,
+        { size: 8.5, color: MUTED, align: "center" });
+    });
+    if (corresponding) {
+      w.paragraph("* Corresponding author: " + corresponding.name + " (" + corresponding.email + ")",
+        { size: 8.5, color: MUTED, align: "center" });
     }
-    affilEl.innerHTML = pdfAffilHtml;
-    titleBlock.appendChild(affilEl);
+    w.y += 18;
 
-    doc.appendChild(titleBlock);
+    // Two-column Article Info / Abstract box (Elsevier-style front matter).
+    doc.setFont("times", "normal"); doc.setFontSize(9);
+    var infoValues = [
+      formatDateLong(report.date),
+      report.dataAvailable ? "Yes — available" : "No — not shared",
+      report.tags.join(", ")
+    ];
+    var infoLabels = ["SUBMITTED", "DATA AND CODE", "KEYWORDS"];
+    var infoLineLists = infoValues.map(function (v) { return doc.splitTextToSize(v, COL_W - 22); });
+    var leftH = 34 + infoLabels.reduce(function (sum, _, i) {
+      return sum + 8 * 1.7 + infoLineLists[i].length * 9 * 1.4 + 6;
+    }, 0);
 
-    var infoRow = document.createElement("div");
-    infoRow.className = "pdf-info-row";
+    doc.setFontSize(9.5);
+    var abstractLines = doc.splitTextToSize(texToPlain(body.abstract || ""), COL_W - 22);
+    var rightH = 34 + abstractLines.length * (9.5 * 1.5);
 
-    var infoCol = document.createElement("div");
-    infoCol.className = "pdf-info-col";
-    infoCol.innerHTML = '<p class="info-heading">Article info</p>' +
-      '<p class="info-line-label">Submitted</p><p class="info-line"></p>' +
-      '<p class="info-line-label">Data and code</p><p class="info-line"></p>' +
-      '<p class="info-line-label">Keywords</p><p class="info-line"></p>';
-    var infoLines = infoCol.querySelectorAll(".info-line");
-    infoLines[0].textContent = formatDateLong(report.date);
-    infoLines[1].textContent = report.dataAvailable ? "Yes — available" : "No — not shared";
-    infoLines[1].classList.add(report.dataAvailable ? "data-yes" : "data-no");
-    infoLines[2].textContent = report.tags.join(", ");
-    infoRow.appendChild(infoCol);
+    var boxH = Math.max(leftH, rightH, 100);
+    w.ensure(boxH + 20);
+    var boxY = w.y;
+    var leftX = MARGIN, rightX = MARGIN + COL_W + COL_GAP;
 
-    var abstractCol = document.createElement("div");
-    abstractCol.className = "pdf-info-col right";
-    abstractCol.innerHTML = '<p class="info-heading">Abstract</p><p class="abstract-text"></p>';
-    abstractCol.querySelector(".abstract-text").textContent = body.abstract || "";
-    infoRow.appendChild(abstractCol);
+    doc.setFillColor.apply(doc, BOX_BG);
+    doc.setDrawColor.apply(doc, LINE_GRAY);
+    doc.setLineWidth(0.75);
+    doc.roundedRect(leftX, boxY, COL_W, boxH, 6, 6, "FD");
+    doc.roundedRect(rightX, boxY, COL_W, boxH, 6, 6, "FD");
 
-    doc.appendChild(infoRow);
+    function boxHeading(x, y, text) {
+      doc.setFont("times", "bold"); doc.setFontSize(8.5); doc.setTextColor.apply(doc, ACCENT);
+      doc.text(text, x + 11, y);
+      doc.setDrawColor.apply(doc, ACCENT); doc.setLineWidth(0.75);
+      doc.line(x + 11, y + 5, x + COL_W - 11, y + 5);
+    }
 
-    var howCite = document.createElement("p");
-    howCite.className = "pdf-howcite";
+    boxHeading(leftX, boxY + 16, "ARTICLE INFO");
+    var cy = boxY + 34;
+    infoLabels.forEach(function (label, i) {
+      doc.setFont("times", "bold"); doc.setFontSize(8); doc.setTextColor.apply(doc, MUTED);
+      doc.text(label, leftX + 11, cy);
+      cy += 8 * 1.7;
+      doc.setFont("times", "normal"); doc.setFontSize(9);
+      doc.setTextColor.apply(doc, i === 1 ? (report.dataAvailable ? ACCENT : HINT) : INK);
+      infoLineLists[i].forEach(function (line) {
+        doc.text(line, leftX + 11, cy);
+        cy += 9 * 1.4;
+      });
+      cy += 6;
+    });
+
+    boxHeading(rightX, boxY + 16, "ABSTRACT");
+    var ry = boxY + 34;
+    doc.setFont("times", "normal"); doc.setFontSize(9.5); doc.setTextColor.apply(doc, INK);
+    abstractLines.forEach(function (line) {
+      doc.text(line, rightX + 11, ry);
+      ry += 9.5 * 1.5;
+    });
+
+    w.y = boxY + boxH + 22;
+
+    // How to cite.
+    w.rule([204, 204, 204], 0.75);
+    w.y += 14;
     var citeStr = apaAuthors(report.authors) + " (" + report.date.slice(0, 4) + "). " +
       report.title + ". Rep0rt. " + window.location.href;
-    howCite.innerHTML = "<b>How to cite:</b> " + rep0rtHtml(citeStr);
-    doc.appendChild(howCite);
+    doc.setFont("times", "bold"); doc.setFontSize(8.5); doc.setTextColor.apply(doc, INK);
+    doc.text("How to cite:", MARGIN, w.y);
+    var citeLabelW = doc.getTextWidth("How to cite: ");
+    doc.setFont("times", "normal"); doc.setTextColor.apply(doc, MUTED);
+    var citeLines = doc.splitTextToSize(texToPlain(citeStr), CONTENT_W - citeLabelW);
+    citeLines.forEach(function (line, i) {
+      w.ensure(8.5 * 1.5);
+      doc.text(line, i === 0 ? MARGIN + citeLabelW : MARGIN, w.y);
+      w.y += 8.5 * 1.5;
+    });
+    w.y += 10;
 
+    // Body sections.
     [
       ["Theory and Expectations", body.theory],
       ["Hypothesis", body.hypothesis],
       ["Results", body.results],
       ["Reflections", body.reflections]
     ].forEach(function (s) {
-      var h = document.createElement("h3");
-      h.textContent = s[0];
-      var p = document.createElement("div");
-      p.className = "body";
-      p.textContent = s[1] || "";
-      doc.appendChild(h);
-      doc.appendChild(p);
+      w.heading(s[0]);
+      w.paragraph(s[1] || "", { size: 11 });
     });
 
+    // Figures: placeholder box with "Figure N" + italic caption above it.
     if ((body.figures || []).length) {
-      var figH = document.createElement("h3");
-      figH.textContent = "Figures";
-      doc.appendChild(figH);
+      w.heading("Figures");
       body.figures.forEach(function (caption, i) {
-        var block = document.createElement("div");
-        block.className = "fig-block";
-        var label = document.createElement("p");
-        label.className = "fig-label";
-        label.textContent = "Figure " + (i + 1);
-        var cap = document.createElement("p");
-        cap.className = "fig-caption";
-        cap.textContent = caption;
-        var ph = document.createElement("div");
-        ph.className = "ph";
-        block.appendChild(label);
-        block.appendChild(cap);
-        block.appendChild(ph);
-        doc.appendChild(block);
+        w.paragraph("Figure " + (i + 1), { size: 10.5, style: "bold" });
+        w.paragraph(caption, { size: 10.5, style: "italic", color: MUTED });
+        w.y += 4;
+        var phH = 110;
+        w.ensure(phH + 14);
+        doc.setFillColor.apply(doc, PH_BG);
+        doc.setDrawColor.apply(doc, LINE_GRAY);
+        doc.setLineWidth(0.75);
+        doc.roundedRect(MARGIN, w.y, CONTENT_W, phH, 6, 6, "FD");
+        w.y += phH + 14;
       });
     }
 
-    var refH = document.createElement("h3");
-    refH.textContent = "References";
-    doc.appendChild(refH);
-
+    // References, two columns.
+    w.heading("References");
     var refs = body.literature || [];
-    var refColumns = document.createElement("div");
-    refColumns.className = "ref-columns";
-    var leftCol = document.createElement("div");
-    leftCol.className = "ref-col";
-    var rightCol = document.createElement("div");
-    rightCol.className = "ref-col right";
     var splitAt = Math.ceil(refs.length / 2);
-    refs.forEach(function (ref, i) {
-      var p = document.createElement("p");
-      p.className = "ref-entry";
-      p.textContent = ref;
-      (i < splitAt ? leftCol : rightCol).appendChild(p);
+    var refColW = COL_W;
+    var leftRefs = refs.slice(0, splitAt), rightRefs = refs.slice(splitAt);
+    var startY = w.y;
+    var leftEndY = startY, rightEndY = startY;
+
+    function drawRefColumn(list, x) {
+      var y = startY;
+      doc.setFont("times", "normal"); doc.setFontSize(9);
+      list.forEach(function (ref) {
+        var lines = doc.splitTextToSize(texToPlain(ref), refColW);
+        lines.forEach(function (line) {
+          if (y + 9 * 1.35 > PAGE_H - MARGIN) { doc.addPage(); y = MARGIN; }
+          doc.setTextColor.apply(doc, INK);
+          doc.text(line, x, y);
+          y += 9 * 1.35;
+        });
+        y += 8;
+      });
+      return y;
+    }
+    leftEndY = drawRefColumn(leftRefs, MARGIN);
+    rightEndY = drawRefColumn(rightRefs, MARGIN + COL_W + COL_GAP);
+    w.y = Math.max(leftEndY, rightEndY) + 12;
+
+    // About Rep0rt box.
+    var aboutText = "Rep0rt is an open archive for results that would otherwise go unwritten. " +
+      "Reports are not peer-reviewed — they are moderated by the Rep0rt community. " +
+      "This document reflects the author's own account of their work.";
+    doc.setFont("times", "normal"); doc.setFontSize(9);
+    var aboutLines = doc.splitTextToSize(aboutText, CONTENT_W - 26);
+    var aboutH = 30 + aboutLines.length * (9 * 1.5);
+    w.ensure(aboutH);
+    doc.setFillColor.apply(doc, BOX_BG);
+    doc.setDrawColor.apply(doc, LINE_GRAY);
+    doc.setLineWidth(0.75);
+    doc.roundedRect(MARGIN, w.y, CONTENT_W, aboutH, 6, 6, "FD");
+    doc.setFont("times", "bold"); doc.setFontSize(7.5); doc.setTextColor.apply(doc, MUTED);
+    doc.text("ABOUT REP0RT", MARGIN + 13, w.y + 18);
+    var ay = w.y + 34;
+    doc.setFont("times", "normal"); doc.setFontSize(9); doc.setTextColor.apply(doc, [34, 34, 34]);
+    aboutLines.forEach(function (line) {
+      doc.text(line, MARGIN + 13, ay);
+      ay += 9 * 1.5;
     });
-    refColumns.appendChild(leftCol);
-    refColumns.appendChild(rightCol);
-    doc.appendChild(refColumns);
 
-    var aboutBox = document.createElement("div");
-    aboutBox.className = "pdf-about";
-    var aboutLabel = document.createElement("p");
-    aboutLabel.className = "about-label";
-    aboutLabel.innerHTML = rep0rtHtml("About Rep0rt");
-    var aboutText = document.createElement("p");
-    aboutText.className = "about-text";
-    aboutText.innerHTML = rep0rtHtml("Rep0rt is an open archive for results that would otherwise go " +
-      "unwritten. Reports are not peer-reviewed — they are moderated by the Rep0rt community. " +
-      "This document reflects the author's own account of their work.");
-    aboutBox.appendChild(aboutLabel);
-    aboutBox.appendChild(aboutText);
-    doc.appendChild(aboutBox);
-
-    return doc;
+    doc.save("rep0rt-" + report.id + ".pdf");
   }
 
-  var printDoc = document.getElementById("print-doc");
-  printDoc.appendChild(buildPdfDoc());
-  if (window.renderMathInElement) renderMathInElement(printDoc, KATEX_OPTS);
-
   document.getElementById("download-pdf").addEventListener("click", function () {
-    window.print();
+    generatePdf(report, body);
   });
 })();
