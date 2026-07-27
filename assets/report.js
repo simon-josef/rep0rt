@@ -256,13 +256,13 @@
         var color = opts.color || INK, align = opts.align || "left";
         var width = opts.width || CONTENT_W, x = opts.x != null ? opts.x : MARGIN;
         var lineHeight = size * (opts.leading || 1.45);
-        this.doc.setFont("times", style);
+        this.doc.setFont("Inter", style);
         this.doc.setFontSize(size);
         var lines = text ? this.doc.splitTextToSize(texToPlain(text), width) : [];
         var self = this;
         lines.forEach(function (line) {
           self.ensure(lineHeight);
-          self.doc.setFont("times", style);
+          self.doc.setFont("Inter", style);
           self.doc.setFontSize(size);
           self.doc.setTextColor.apply(self.doc, color);
           self.doc.text(line, align === "center" ? x + width / 2 : x, self.y, { align: align });
@@ -273,7 +273,7 @@
       heading: function (text) {
         this.ensure(28);
         this.y += 16;
-        this.doc.setFont("times", "bold");
+        this.doc.setFont("Inter", "bold");
         this.doc.setFontSize(11.5);
         this.doc.setTextColor.apply(this.doc, INK);
         this.doc.text(text, MARGIN, this.y);
@@ -284,9 +284,21 @@
     };
   }
 
+  // Registers the embedded Inter subset with this jsPDF instance — must be
+  // called once per document, since VFS/font registration is per-instance.
+  function registerFonts(doc) {
+    var F = window.REP0RT_FONTS;
+    doc.addFileToVFS("Inter-Regular.ttf", F.regular);
+    doc.addFont("Inter-Regular.ttf", "Inter", "normal");
+    doc.addFileToVFS("Inter-Bold.ttf", F.bold);
+    doc.addFont("Inter-Bold.ttf", "Inter", "bold");
+    doc.addFileToVFS("Inter-Italic.ttf", F.italic);
+    doc.addFont("Inter-Italic.ttf", "Inter", "italic");
+  }
+
   function drawWordmark(w, x, y, size) {
     var doc = w.doc;
-    doc.setFont("times", "bolditalic");
+    doc.setFont("Inter", "bold");
     doc.setFontSize(size);
     doc.setTextColor.apply(doc, INK);
     doc.text("Rep", x, y);
@@ -300,6 +312,7 @@
 
   function generatePdf(report, body) {
     var doc = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
+    registerFonts(doc);
     var w = makeWriter(doc);
 
     // Masthead: accent bar, wordmark + discipline, rule.
@@ -307,7 +320,7 @@
     doc.rect(MARGIN, w.y, CONTENT_W, 4, "F");
     w.y += 22;
     drawWordmark(w, MARGIN, w.y, 17);
-    doc.setFont("times", "normal");
+    doc.setFont("Inter", "normal");
     doc.setFontSize(9);
     doc.setTextColor.apply(doc, MUTED);
     doc.text(DISCIPLINE_NAMES[report.discipline] || report.discipline, PAGE_W - MARGIN, w.y, { align: "right" });
@@ -343,7 +356,7 @@
     w.y += 18;
 
     // Two-column Article Info / Abstract box (Elsevier-style front matter).
-    doc.setFont("times", "normal"); doc.setFontSize(9);
+    doc.setFont("Inter", "normal"); doc.setFontSize(9);
     var infoValues = [
       formatDateLong(report.date),
       report.dataAvailable ? "Yes — available" : "No — not shared",
@@ -371,7 +384,7 @@
     doc.roundedRect(rightX, boxY, COL_W, boxH, 6, 6, "FD");
 
     function boxHeading(x, y, text) {
-      doc.setFont("times", "bold"); doc.setFontSize(8.5); doc.setTextColor.apply(doc, ACCENT);
+      doc.setFont("Inter", "bold"); doc.setFontSize(8.5); doc.setTextColor.apply(doc, ACCENT);
       doc.text(text, x + 11, y);
       doc.setDrawColor.apply(doc, ACCENT); doc.setLineWidth(0.75);
       doc.line(x + 11, y + 5, x + COL_W - 11, y + 5);
@@ -380,10 +393,10 @@
     boxHeading(leftX, boxY + 16, "ARTICLE INFO");
     var cy = boxY + 34;
     infoLabels.forEach(function (label, i) {
-      doc.setFont("times", "bold"); doc.setFontSize(8); doc.setTextColor.apply(doc, MUTED);
+      doc.setFont("Inter", "bold"); doc.setFontSize(8); doc.setTextColor.apply(doc, MUTED);
       doc.text(label, leftX + 11, cy);
       cy += 8 * 1.7;
-      doc.setFont("times", "normal"); doc.setFontSize(9);
+      doc.setFont("Inter", "normal"); doc.setFontSize(9);
       doc.setTextColor.apply(doc, i === 1 ? (report.dataAvailable ? ACCENT : HINT) : INK);
       infoLineLists[i].forEach(function (line) {
         doc.text(line, leftX + 11, cy);
@@ -394,7 +407,7 @@
 
     boxHeading(rightX, boxY + 16, "ABSTRACT");
     var ry = boxY + 34;
-    doc.setFont("times", "normal"); doc.setFontSize(9.5); doc.setTextColor.apply(doc, INK);
+    doc.setFont("Inter", "normal"); doc.setFontSize(9.5); doc.setTextColor.apply(doc, INK);
     abstractLines.forEach(function (line) {
       doc.text(line, rightX + 11, ry);
       ry += 9.5 * 1.5;
@@ -407,10 +420,10 @@
     w.y += 14;
     var citeStr = apaAuthors(report.authors) + " (" + report.date.slice(0, 4) + "). " +
       report.title + ". Rep0rt. " + window.location.href;
-    doc.setFont("times", "bold"); doc.setFontSize(8.5); doc.setTextColor.apply(doc, INK);
+    doc.setFont("Inter", "bold"); doc.setFontSize(8.5); doc.setTextColor.apply(doc, INK);
     doc.text("How to cite:", MARGIN, w.y);
     var citeLabelW = doc.getTextWidth("How to cite: ");
-    doc.setFont("times", "normal"); doc.setTextColor.apply(doc, MUTED);
+    doc.setFont("Inter", "normal"); doc.setTextColor.apply(doc, MUTED);
     var citeLines = doc.splitTextToSize(texToPlain(citeStr), CONTENT_W - citeLabelW);
     citeLines.forEach(function (line, i) {
       w.ensure(8.5 * 1.5);
@@ -458,7 +471,7 @@
 
     function drawRefColumn(list, x) {
       var y = startY;
-      doc.setFont("times", "normal"); doc.setFontSize(9);
+      doc.setFont("Inter", "normal"); doc.setFontSize(9);
       list.forEach(function (ref) {
         var lines = doc.splitTextToSize(texToPlain(ref), refColW);
         lines.forEach(function (line) {
@@ -479,7 +492,7 @@
     var aboutText = "Rep0rt is an open archive for results that would otherwise go unwritten. " +
       "Reports are not peer-reviewed — they are moderated by the Rep0rt community. " +
       "This document reflects the author's own account of their work.";
-    doc.setFont("times", "normal"); doc.setFontSize(9);
+    doc.setFont("Inter", "normal"); doc.setFontSize(9);
     var aboutLines = doc.splitTextToSize(aboutText, CONTENT_W - 26);
     var aboutH = 30 + aboutLines.length * (9 * 1.5);
     w.ensure(aboutH);
@@ -487,10 +500,10 @@
     doc.setDrawColor.apply(doc, LINE_GRAY);
     doc.setLineWidth(0.75);
     doc.roundedRect(MARGIN, w.y, CONTENT_W, aboutH, 6, 6, "FD");
-    doc.setFont("times", "bold"); doc.setFontSize(7.5); doc.setTextColor.apply(doc, MUTED);
+    doc.setFont("Inter", "bold"); doc.setFontSize(7.5); doc.setTextColor.apply(doc, MUTED);
     doc.text("ABOUT REP0RT", MARGIN + 13, w.y + 18);
     var ay = w.y + 34;
-    doc.setFont("times", "normal"); doc.setFontSize(9); doc.setTextColor.apply(doc, [34, 34, 34]);
+    doc.setFont("Inter", "normal"); doc.setFontSize(9); doc.setTextColor.apply(doc, [34, 34, 34]);
     aboutLines.forEach(function (line) {
       doc.text(line, MARGIN + 13, ay);
       ay += 9 * 1.5;
